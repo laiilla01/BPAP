@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html class="light" dir="ltr" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>JOSWE (Production Line)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#213145", "surface-container": "#e5eeff", "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#6bd6e5", "on-tertiary": "#ffffff", "primary-fixed": "#9cefff",
+                        "tertiary": "#006876", "surface-bright": "#f8f9ff", "on-background": "#0b1c30",
+                        "surface-dim": "#cbdbf5", "surface-variant": "#d3e4fe", "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#92f1ff", "on-tertiary-fixed": "#001f25", "error-container": "#ffdad6",
+                        "on-primary-fixed": "#001f24", "on-tertiary-fixed-variant": "#004e59", "on-error": "#ffffff",
+                        "outline": "#6d797c", "inverse-primary": "#5ed7ea", "on-secondary-fixed-variant": "#004f57",
+                        "secondary": "#006973", "on-surface": "#0b1c30", "on-surface-variant": "#3d494b",
+                        "tertiary-fixed-dim": "#7ad4e5", "on-primary-container": "#003138", "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#5ed7ea", "outline-variant": "#bcc9cb", "primary-container": "#00a2b5",
+                        "secondary-container": "#86effe", "error": "#ba1a1a", "on-secondary-fixed": "#001f23",
+                        "tertiary-fixed": "#a0efff", "on-error-container": "#93000a",
+                        "surface-container-low": "#eff4ff", "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#429fb0", "on-primary-fixed-variant": "#004f58",
+                        "on-secondary": "#ffffff", "surface-container-high": "#dce9ff", "primary": "#006875",
+                        "on-tertiary-container": "#003138", "on-secondary-container": "#006d78",
+                        "surface-tint": "#006875", "surface-container-highest": "#d3e4fe", "background": "#f8f9ff"
+                    },
+                    "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                    "spacing": {
+                        "container-max": "1440px", "unit": "4px", "stack-md": "16px",
+                        "sidebar-width": "260px", "stack-sm": "8px", "gutter": "24px",
+                        "margin-mobile": "16px", "stack-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["IBM Plex Sans"], "headline-sm": ["Be Vietnam Pro"], "display-lg": ["Be Vietnam Pro"],
+                        "body-lg": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], "label-bold": ["IBM Plex Sans"],
+                        "data-mono": ["IBM Plex Sans"], "display-md": ["Be Vietnam Pro"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "data-mono": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                        "display-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8f9ff; font-family: 'IBM Plex Sans', sans-serif; color: #0b1c30; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block; vertical-align: middle;
+        }
+        .page-content { display: none; }
+        .page-content.active { display: block; }
+        .nav-item.active { background-color: #86effe; color: #006d78; border-left: 4px solid #006875; }
+        .nav-item { transition: all 0.15s ease; }
+        .nav-item:not(.active):hover { transform: translateX(4px); }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid #e2e8f0;
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #bcc9cb; border-radius: 10px; }
+        /* Decorative blobs */
+        .blob-1 { position: fixed; bottom: 0; left: 0; width: 256px; height: 256px; background: #006875; opacity: 0.03; border-radius: 50%; filter: blur(48px); pointer-events: none; z-index: 0; }
+        .blob-2 { position: fixed; top: 0; right: 0; width: 384px; height: 384px; background: #006876; opacity: 0.02; border-radius: 50%; filter: blur(48px); pointer-events: none; z-index: 0; }
+        /* Sidebar mobile */
+        #mobile-sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+        #mobile-sidebar.open { transform: translateX(0); }
+        #sidebar-overlay { display: none; }
+        #sidebar-overlay.open { display: block; }
+    </style>
+</head>
+<body class="bg-background text-on-surface overflow-x-hidden min-h-screen">
+
+<div class="blob-1"></div>
+<div class="blob-2"></div>
+
+<!-- ======== DESKTOP SIDEBAR ======== -->
+<aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[260px] bg-surface-container-low border-r border-outline-variant z-50 flex-col py-stack-lg">
+    <div class="px-gutter mb-stack-lg">
+        <img alt="Health For Life Logo" class="h-10 w-auto object-contain mb-2"
+             src="https://lh3.googleusercontent.com/aida/ADBb0uh702pjKtrgJB1Sgoy5mE_Jb0W-JjqABxypZSFs3QIMdRgpyvJ7dIBRd6sNoLOQLi2pr-CKyISxTraYaiBegzSCmFeAI4spS0vv4MGVDO0yoHT9ycnYgTvqQcgS5M9T83lN-p_5RS6NkezGV3zpYMfUSzemLmIFJhwmfMySju-n3UDJh2GxpGtDedgecmMejkxN4r1Cpt3lXizWUAkkERw13nYPS-p83LJhhjfhkhotaNeYGOjSqAkUnbOe_toS08xxRKqg6u35EQ">
+    </div>
+    <nav class="flex-1 space-y-1">
+        <a id="link-dashboard" href="javascript:void(0)" onclick="showPage('dashboard')"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-label-bold text-label-bold">Dashboard</span>
+        </a>
+        <a id="link-session" href="javascript:void(0)" onclick="showPage('session')"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined">info</span>
+            <span class="font-label-bold text-label-bold">Session Info</span>
+        </a>
+        <a id="link-activity" href="javascript:void(0)" onclick="showPage('activity')"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined">history</span>
+            <span class="font-label-bold text-label-bold">Activity Log</span>
+        </a>
+        <a id="link-delays" href="javascript:void(0)" onclick="showPage('delays')"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined">timer_off</span>
+            <span class="font-label-bold text-label-bold">Delays &amp; Notes</span>
+        </a>
+        <a id="link-summary" href="javascript:void(0)" onclick="showPage('summary')"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">assignment_turned_in</span>
+            <span class="font-label-bold text-label-bold">Review</span>
+        </a>
+    </nav>
+    <div class="px-gutter mt-auto">
+        <button onclick="showPage('session')"
+                class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">add_circle</span> New Batch Entry
+        </button>
+    </div>
+</aside>
+
+<!-- ======== MOBILE SIDEBAR OVERLAY ======== -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-[55] lg:hidden" onclick="closeMobileSidebar()"></div>
+<aside id="mobile-sidebar" class="fixed left-0 top-0 h-screen w-[260px] bg-surface-container-low border-r border-outline-variant z-[60] flex flex-col py-stack-lg lg:hidden">
+    <div class="px-gutter mb-stack-lg flex items-center justify-between">
+        <img alt="Health For Life Logo" class="h-10 w-auto object-contain"
+             src="https://lh3.googleusercontent.com/aida/ADBb0uh702pjKtrgJB1Sgoy5mE_Jb0W-JjqABxypZSFs3QIMdRgpyvJ7dIBRd6sNoLOQLi2pr-CKyISxTraYaiBegzSCmFeAI4spS0vv4MGVDO0yoHT9ycnYgTvqQcgS5M9T83lN-p_5RS6NkezGV3zpYMfUSzemLmIFJhwmfMySju-n3UDJh2GxpGtDedgecmMejkxN4r1Cpt3lXizWUAkkERw13nYPS-p83LJhhjfhkhotaNeYGOjSqAkUnbOe_toS08xxRKqg6u35EQ">
+        <button onclick="closeMobileSidebar()" class="material-symbols-outlined text-on-surface-variant p-1">close</button>
+    </div>
+    <nav class="flex-1 space-y-1">
+        <a id="mlink-dashboard" href="javascript:void(0)" onclick="showPage('dashboard'); closeMobileSidebar();"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-label-bold text-label-bold">Dashboard</span>
+        </a>
+        <a id="mlink-session" href="javascript:void(0)" onclick="showPage('session'); closeMobileSidebar();"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined">info</span>
+            <span class="font-label-bold text-label-bold">Session Info</span>
+        </a>
+        <a id="mlink-activity" href="javascript:void(0)" onclick="showPage('activity'); closeMobileSidebar();"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined">history</span>
+            <span class="font-label-bold text-label-bold">Activity Log</span>
+        </a>
+        <a id="mlink-delays" href="javascript:void(0)" onclick="showPage('delays'); closeMobileSidebar();"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined">timer_off</span>
+            <span class="font-label-bold text-label-bold">Delays &amp; Notes</span>
+        </a>
+        <a id="mlink-summary" href="javascript:void(0)" onclick="showPage('summary'); closeMobileSidebar();"
+           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
+            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">assignment_turned_in</span>
+            <span class="font-label-bold text-label-bold">Review</span>
+        </a>
+    </nav>
+    <div class="px-gutter mt-auto">
+        <button onclick="showPage('session'); closeMobileSidebar();"
+                class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">add_circle</span> New Batch Entry
+        </button>
+    </div>
+</aside>
+
+<!-- ======== MAIN ======== -->
+<main class="lg:ml-[260px] min-h-screen flex flex-col transition-all duration-300">
+
+    <!-- TOP BAR -->
+    <header class="h-16 border-b border-outline-variant bg-surface-container-lowest flex items-center justify-between px-gutter sticky top-0 z-40">
+        <div class="w-10 h-10 lg:hidden flex items-center justify-center">
+            <!-- placeholder for balance -->
+        </div>
+        <div class="flex items-center justify-center flex-1">
+            <h2 class="font-display-md text-display-md font-bold text-primary">Production Line</h2>
+        </div>
+        <div class="flex items-center gap-stack-md lg:hidden">
+            <button onclick="openMobileSidebar()" class="material-symbols-outlined text-primary p-2">menu</button>
+        </div>
+        <!-- Empty spacer desktop -->
+        <div class="hidden lg:block w-10"></div>
+    </header>
+
+    <!-- ==================== PAGE: DASHBOARD ==================== -->
+    <div id="page-dashboard" class="page-content p-gutter w-full flex-1 max-w-none">
+        <!-- Summary Bento Grid -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter mb-stack-lg">
+            <!-- Active Batches -->
+            <div class="bg-white border border-outline-variant p-stack-lg rounded-xl flex flex-col justify-between hover:shadow-md transition-shadow h-full">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-on-surface-variant font-label-bold">Active Batches</p>
+                        <h3 class="font-display-lg text-display-lg text-primary mt-2">12</h3>
+                    </div>
+                    <div class="p-3 bg-primary-container/10 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-3xl">biotech</span>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-1 text-secondary font-label-bold">
+                    <span class="material-symbols-outlined text-sm">trending_up</span>
+                    <span>+2 vs yesterday</span>
+                </div>
+            </div>
+            <!-- Today's Productivity -->
+            <div class="bg-white border border-outline-variant p-stack-lg rounded-xl flex flex-col justify-between hover:shadow-md transition-shadow h-full">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-on-surface-variant font-label-bold">Today's Productivity</p>
+                        <h3 class="font-display-lg text-display-lg text-primary mt-2">842 <span class="text-body-lg text-on-surface-variant">kg</span></h3>
+                    </div>
+                    <div class="p-3 bg-secondary-container/10 rounded-lg">
+                        <span class="material-symbols-outlined text-secondary text-3xl">rebase_edit</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+                        <div class="bg-secondary h-full" style="width: 78%"></div>
+                    </div>
+                    <p class="mt-2 text-label-bold text-on-surface-variant">78% of daily target</p>
+                </div>
+            </div>
+            <!-- Average Cycle Time -->
+            <div class="bg-white border border-outline-variant p-stack-lg rounded-xl flex flex-col justify-between hover:shadow-md transition-shadow h-full sm:col-span-2 lg:col-span-1">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-on-surface-variant font-label-bold">Average Cycle Time</p>
+                        <h3 class="font-display-lg text-display-lg text-primary mt-2">4.5 <span class="text-body-lg text-on-surface-variant">hrs</span></h3>
+                    </div>
+                    <div class="p-3 bg-tertiary-container/10 rounded-lg">
+                        <span class="material-symbols-outlined text-tertiary text-3xl">schedule</span>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-1 text-error font-label-bold">
+                    <span class="material-symbols-outlined text-sm">history</span>
+                    <span>-12 min improvement</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activities Table -->
+        <section class="bg-white border border-outline-variant rounded-xl overflow-hidden w-full mb-stack-lg">
+            <div class="p-gutter border-b border-outline-variant flex justify-between items-center bg-surface-container-low/30">
+                <h4 class="font-headline-sm text-headline-sm text-on-surface">Recent Activities</h4>
+                <button class="text-primary font-label-bold flex items-center gap-1 hover:underline">
+                    View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </button>
+            </div>
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse min-w-[640px]">
+                    <thead>
+                        <tr class="bg-surface-container-low text-on-surface-variant font-label-bold">
+                            <th class="p-4 border-b border-outline-variant">Batch Number</th>
+                            <th class="p-4 border-b border-outline-variant">Product</th>
+                            <th class="p-4 border-b border-outline-variant">Status</th>
+                            <th class="p-4 border-b border-outline-variant">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-body-md" id="dashboard-table-body">
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
+                            <td class="p-4 font-data-mono">#BT-99281</td>
+                            <td class="p-4">Omeprazole 20 mg</td>
+                            <td class="p-4">
+                                <span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> In Progress
+                                </span>
+                            </td>
+                            <td class="p-4 text-on-surface-variant">10:45 AM</td>
+                        </tr>
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
+                            <td class="p-4 font-data-mono">#BT-99275</td>
+                            <td class="p-4">Paracetamol 500 mg</td>
+                            <td class="p-4">
+                                <span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span> Completed
+                                </span>
+                            </td>
+                            <td class="p-4 text-on-surface-variant">09:12 AM</td>
+                        </tr>
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
+                            <td class="p-4 font-data-mono">#BT-99270</td>
+                            <td class="p-4">Amaryl 4 mg</td>
+                            <td class="p-4">
+                                <span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-error"></span> Paused (Alert)
+                                </span>
+                            </td>
+                            <td class="p-4 text-on-surface-variant">08:00 AM</td>
+                        </tr>
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
+                            <td class="p-4 font-data-mono">#BT-99268</td>
+                            <td class="p-4">Vitamin C Effervescent</td>
+                            <td class="p-4">
+                                <span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span> Completed
+                                </span>
+                            </td>
+                            <td class="p-4 text-on-surface-variant">Yesterday</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Charts Row -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+            <!-- Achieved Quantity Chart -->
+            <div class="bg-white border border-outline-variant p-gutter rounded-xl w-full">
+                <h5 class="font-label-bold text-on-surface mb-6">Achieved Quantity (kg) by Unit</h5>
+                <div class="space-y-6">
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Unit B1</span><span class="text-primary">420 kg</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 84%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Unit B3</span><span class="text-primary">380 kg</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 76%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Unit B4</span><span class="text-primary">410 kg</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 82%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Unit B5</span><span class="text-primary">290 kg</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 58%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Unit B6</span><span class="text-primary">350 kg</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Unit B7</span><span class="text-primary">310 kg</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 62%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Top 5 Delays Chart -->
+            <div class="bg-white border border-outline-variant p-gutter rounded-xl w-full flex flex-col">
+                <h5 class="font-label-bold text-on-surface mb-6">Top 5 Delays</h5>
+                <div class="space-y-6">
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Equipment Maintenance</span><span class="text-primary">45m</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Material Shortage</span><span class="text-primary">30m</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 60%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">QC Inspection</span><span class="text-primary">25m</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 50%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Changeover</span><span class="text-primary">15m</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 30%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-label-bold mb-1">
+                            <span class="text-on-surface-variant">Technical Issue</span><span class="text-primary">10m</span>
+                        </div>
+                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full" style="width: 20%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==================== PAGE: SESSION INFO (Batch Info) ==================== -->
+    <div id="page-session" class="page-content p-margin-mobile md:p-gutter">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-stack-md md:p-stack-lg w-full min-h-[calc(100vh-theme(spacing.16)-theme(spacing.gutter)*2)]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant pb-stack-md mb-stack-md gap-2">
+                <h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">fact_check</span> Session/Batch Info
+                </h2>
+                <span class="text-label-sm font-label-sm text-outline">All fields marked with <span class="text-error">*</span> are required</span>
+            </div>
+            <form class="space-y-stack-lg" id="session-form" onsubmit="handleSessionSubmit(event)">
+                <!-- Row 1: Time Context -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-gutter">
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Shift <span class="text-error">*</span></label>
+                        <select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                            <option disabled selected value="">Select Shift</option>
+                            <option>Day</option><option>Night</option><option>Day-Off</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Day <span class="text-error">*</span></label>
+                        <select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                            <option disabled selected value="">Select Day</option>
+                            <option>Sun</option><option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option><option>Sat</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1 sm:col-span-2 lg:col-span-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Date <span class="text-error">*</span></label>
+                        <div class="relative">
+                            <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="date">
+                        </div>
+                    </div>
+                </div>
+                <!-- Row 2: Product & Batch Identification -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Product Name <span class="text-error">*</span></label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Enter full product name" type="text">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Product Code (Auto)</label>
+                        <div class="relative">
+                            <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright font-body-md outline-none" readonly type="text" value="FP001">
+                            <span class="absolute right-3 top-3 material-symbols-outlined text-outline text-sm">lock</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Row 3: Environment & Market -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Room No. <span class="text-error">*</span></label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="e.g.: B1" type="text">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Market <span class="text-error">*</span></label>
+                        <select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                            <option>Local</option>
+                            <option>Export (Europe)</option>
+                            <option>Export (Middle East)</option>
+                            <option>Export (Africa)</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Employee Names (Optional) -->
+                <div class="pt-stack-md border-t border-outline-variant">
+                    <h3 class="text-label-bold font-label-bold text-primary mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined">groups</span> Employee Names (Optional)
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-stack-sm">
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 1" type="text">
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 2" type="text">
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 3" type="text">
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 4" type="text">
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 5" type="text">
+                    </div>
+                </div>
+                <!-- Form Actions -->
+                <div class="flex flex-col sm:flex-row justify-end gap-stack-md pt-stack-lg">
+                    <button class="w-full sm:w-auto px-gutter py-3 rounded border border-outline text-on-surface-variant hover:bg-surface-container transition-colors font-label-bold text-label-bold" type="button">
+                        Cancel
+                    </button>
+                    <button id="session-submit-btn" class="w-full sm:w-auto px-10 py-3 rounded bg-primary text-on-primary shadow-lg hover:shadow-xl hover:opacity-90 transition-all font-label-bold text-label-bold flex items-center justify-center gap-2" type="submit">
+                        <span>Activity Log</span><span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== PAGE: ACTIVITY LOG ==================== -->
+    <div id="page-activity" class="page-content">
+        <div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm w-full">
+            <!-- Part 1: Activity Details -->
+            <section class="p-gutter border-b border-outline-variant">
+                <div class="flex items-center gap-2 mb-stack-md text-primary">
+                    <span class="material-symbols-outlined">pending_actions</span>
+                    <h3 class="font-headline-sm text-headline-sm">Part One: Activity Details</h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                    <!-- Process Code -->
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Process Code <span class="text-error">*</span></label>
+                        <select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                            <option>Select Process...</option>
+                            <option>Adjustment</option>
+                            <option>Blistering</option>
+                            <option>Cleaning</option>
+                            <option>Line Clearence</option>
+                            <option>Delay</option>
+                            <option>Discharging,Weighing &amp; Finalizing</option>
+                            <option>Sorting</option>
+                            <option>DE-Blister</option>
+                            <option>Break</option>
+                            <option>P.Maintenance</option>
+                            <option>Polisher</option>
+                        </select>
+                    </div>
+                    <!-- Activity -->
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Activity</label>
+                        <select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                            <option>Select Activity...</option>
+                            <option>F.C</option>
+                            <option>P.C</option>
+                            <option>Disassembly &amp; Reassembly</option>
+                            <option>Tablet</option>
+                            <option>Blister</option>
+                            <option>Waiting for Package</option>
+                            <option>Weighing</option>
+                            <option>Waiting Q.A Department</option>
+                            <option>Stop Packaging</option>
+                            <option>Heater Calibration</option>
+                            <option>Capsules</option>
+                            <option>Calibration</option>
+                            <option>Camera Calibration</option>
+                        </select>
+                    </div>
+                    <!-- Speed-Cat -->
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Speed-Cat</label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Enter Speed Category" type="text">
+                    </div>
+                    <!-- Feeder -->
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-2">Feeder</label>
+                        <div class="flex gap-6 h-full items-center">
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input class="text-primary focus:ring-primary h-5 w-5 cursor-pointer" name="feeder" type="radio">
+                                <span class="font-body-md group-hover:text-primary transition-colors">Manual</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input checked class="text-primary focus:ring-primary h-5 w-5 cursor-pointer" name="feeder" type="radio">
+                                <span class="font-body-md group-hover:text-primary transition-colors">Automatic</span>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Start Time -->
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Start Time</label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="time">
+                    </div>
+                    <!-- End Time -->
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">End Time</label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="time">
+                    </div>
+                </div>
+                <!-- Auto-calculated fields -->
+                <div class="mt-gutter grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-stack-md p-stack-md bg-surface-container-low rounded-xl">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-label-sm">lock</span>
+                            <label class="font-label-bold text-label-bold text-on-surface-variant">Duration</label>
+                        </div>
+                        <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">02:45:00</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant">Overlap</label>
+                        <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono text-error">00:15:00</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant">Overtime</label>
+                        <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant">Night Shift</label>
+                        <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant">Achieved (Y/N)</label>
+                        <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono flex items-center justify-center overflow-hidden">
+                            <select class="bg-transparent border-none p-0 m-0 text-green-800 font-bold text-xs uppercase focus:ring-0 cursor-pointer w-full text-center appearance-none">
+                                <option selected value="Y">Yes (Y)</option>
+                                <option value="N">No (N)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Part 2: Quantities & Results -->
+            <section class="p-gutter">
+                <div class="flex items-center gap-2 mb-stack-md text-primary">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <h3 class="font-headline-sm text-headline-sm">Part Two: Quantities &amp; Results</h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Received Qty (kg)</label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="0.01" type="number" value="500.00">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">No. of Tablets</label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="number" value="150000">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Achieved Qty (kg)</label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="0.01" type="number" value="485.50">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Quantity Blister <span class="text-label-sm opacity-60 font-normal">(Optional)</span></label>
+                        <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="--" type="number">
+                    </div>
+                </div>
+                <!-- Auto Calculations -->
+                <div class="mt-gutter bg-surface-container rounded-xl p-gutter border-l-4 border-tertiary">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                        <div class="flex flex-col justify-center">
+                            <span class="font-label-bold text-label-bold text-on-surface-variant">Avg Tablet Weight (gm)</span>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-display-md font-bold text-tertiary">0.323</span>
+                                <span class="text-label-sm text-on-surface-variant">gm</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <span class="font-label-bold text-label-bold text-on-surface-variant">Waste (kg)</span>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-display-md font-bold text-error">14.50</span>
+                                <span class="text-label-sm text-on-surface-variant">kg</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="font-label-bold text-label-bold text-on-surface-variant">Yield %</span>
+                                <span class="text-display-md font-bold text-primary">97.10%</span>
+                            </div>
+                            <div class="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 97.1%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Action Bar -->
+            <div class="bg-surface-container-low p-gutter flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-outline-variant">
+                <button onclick="showPage('session')" class="w-full sm:w-auto px-8 py-3 rounded-lg border border-outline text-on-surface font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors">
+                    <span class="material-symbols-outlined">arrow_back</span> Back
+                </button>
+                <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <button class="w-full sm:w-auto px-8 py-3 rounded-lg border border-primary text-primary font-label-bold text-label-bold hover:bg-primary/5 transition-colors">Cancel</button>
+                    <button onclick="showPage('delays')" class="w-full sm:w-auto px-10 py-3 rounded-lg bg-primary text-on-primary font-label-bold text-label-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                        Delays &amp; Notes <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PAGE: DELAYS & NOTES ==================== -->
+    <div id="page-delays" class="page-content p-margin-mobile md:p-gutter">
+        <div class="max-w-[1024px] mx-auto">
+            <!-- Page Title -->
+            <div class="mb-stack-md flex justify-between items-end">
+                <div>
+                    <h2 class="font-display-md text-display-md font-bold text-on-surface mb-1">Record Delays &amp; Notes</h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Please document any interruptions or additional notes before closing the batch.</p>
+                </div>
+                <div class="bg-surface-container-high px-4 py-2 rounded-lg flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">pending_actions</span>
+                    <div>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant">Batch Status</p>
+                        <p class="font-label-bold text-label-bold text-primary">In Final Review</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Form Grid -->
+            <div class="grid grid-cols-12 gap-gutter">
+                <!-- Auto-generated Data (Left) -->
+                <div class="col-span-12 lg:col-span-4 space-y-gutter">
+                    <div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant border-dashed">
+                        <h3 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">auto_awesome</span> Auto-generated Data
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Delay Code</label>
+                                <div class="flex items-center justify-between bg-surface-container-highest/50 px-3 py-2 rounded-lg border border-outline-variant">
+                                    <span class="font-data-mono text-data-mono">NA-001</span>
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">lock</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Delay Group</label>
+                                <div class="flex items-center justify-between bg-surface-container-highest/50 px-3 py-2 rounded-lg border border-outline-variant">
+                                    <span class="font-data-mono text-data-mono">Not Specified</span>
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">lock</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Delay Category</label>
+                                <div class="flex items-center justify-between bg-surface-container-highest/50 px-3 py-2 rounded-lg border border-outline-variant">
+                                    <span class="font-data-mono text-data-mono">Other</span>
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">lock</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Manual Input (Right) -->
+                <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-8 rounded-xl border border-outline-variant shadow-sm space-y-6">
+                    <div class="grid grid-cols-2 gap-stack-md">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block font-label-bold text-label-bold text-on-surface mb-2">Delay Description</label>
+                            <select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                                <option>Select cause...</option>
+                                <option>Machine technical failure</option>
+                                <option>Raw material delay</option>
+                                <option>Shift change</option>
+                                <option>Recalibration</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block font-label-bold text-label-bold text-on-surface mb-2">Request Number</label>
+                            <input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="e.g. CM-4256" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-label-bold text-label-bold text-on-surface mb-2">Delay Cause</label>
+                        <textarea class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Explain in detail the nature of the stop or delay..." rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-label-bold text-label-bold text-on-surface mb-2">Additional Notes</label>
+                        <textarea class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Any other notes regarding the process flow or quality..." rows="4"></textarea>
+                    </div>
+                    <div class="flex items-center justify-end gap-stack-md pt-6 border-t border-outline-variant">
+                        <button onclick="showPage('activity')" class="px-6 py-3 rounded-lg font-label-bold text-primary hover:bg-surface-container-low transition-colors">
+                            Cancel Changes
+                        </button>
+                        <button id="finalizeBtn" class="px-10 py-3 rounded-lg font-label-bold bg-primary text-on-primary shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2" onclick="showPage('summary')">
+                            <span class="material-symbols-outlined text-sm">task_alt</span> Final Batch Closure
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ==================== PAGE: SUMMARY / REVIEW ==================== -->
+    <div id="page-summary" class="page-content pb-28">
+        <div class="max-w-[1024px] mx-auto pt-8 px-gutter">
+            <!-- Page Header -->
+            <div class="mb-10 text-center">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full mb-4">
+                    <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">verified</span>
+                    <span class="font-label-bold text-label-bold">Final Verification Step</span>
+                </div>
+                <h2 class="font-display-lg text-display-lg text-on-surface mb-2">Batch Data Summary</h2>
+                <p class="font-body-lg text-body-lg text-on-surface-variant">Please review all entered data meticulously before final submission to the quality control system.</p>
+            </div>
+
+            <!-- Bento Grid -->
+            <div class="grid grid-cols-12 gap-gutter">
+
+                <!-- Section 1: Session & Batch Info (full width) -->
+                <section class="col-span-12 glass-card rounded-xl p-8 border border-outline-variant/40 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">inventory</span>
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface">Session &amp; Batch Identification</h3>
+                        </div>
+                        <button onclick="showPage('session')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline">
+                            <span class="material-symbols-outlined text-sm">edit</span> Edit Section
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-12">
+                        <div>
+                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Product Name</p>
+                            <p class="font-body-lg text-body-lg font-bold text-on-surface">Paracetamol 500mg Forte</p>
+                        </div>
+                        <div>
+                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Batch Code</p>
+                            <p class="font-data-mono text-data-mono bg-surface-container-high px-2 py-0.5 rounded inline-block text-primary">BP-2023-X9924</p>
+                        </div>
+                        <div>
+                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Shift / Day</p>
+                            <p class="font-body-lg text-body-lg text-on-surface">Morning / Tuesday</p>
+                        </div>
+                        <div>
+                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Date</p>
+                            <p class="font-body-lg text-body-lg text-on-surface">Oct 24, 2023</p>
+                        </div>
+                        <div>
+                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Manufacturing Room</p>
+                            <p class="font-body-lg text-body-lg text-on-surface">Sterile Suite B-12</p>
+                        </div>
+                        <div>
+                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Target Market</p>
+                            <p class="font-body-lg text-body-lg text-on-surface">European Union (EU)</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Assigned Personnel</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">Ahmed Khalil (Lead)</span>
+                                <span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">Sarah Jenkins</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Activity & Yield (spans 8) -->
+                <section class="col-span-12 lg:col-span-8 glass-card rounded-xl p-8 border border-outline-variant/40 shadow-sm relative">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary"></div>
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-secondary">analytics</span>
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface">Activity &amp; Yield Performance</h3>
+                        </div>
+                        <button onclick="showPage('activity')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline">
+                            <span class="material-symbols-outlined text-sm">edit</span> Edit
+                        </button>
+                    </div>
+                    <div class="overflow-hidden border border-outline-variant/30 rounded-lg">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low">
+                                    <th class="p-4 font-label-bold text-label-bold text-on-surface">Activity Detail</th>
+                                    <th class="p-4 font-label-bold text-label-bold text-on-surface">Speed / Cat.</th>
+                                    <th class="p-4 font-label-bold text-label-bold text-on-surface">Duration</th>
+                                    <th class="p-4 font-label-bold text-label-bold text-on-surface">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/20">
+                                <tr>
+                                    <td class="p-4">
+                                        <p class="font-body-md text-body-md font-bold">Initial Granulation</p>
+                                        <p class="text-label-sm font-label-sm text-on-surface-variant">08:00 AM - 10:30 AM</p>
+                                    </td>
+                                    <td class="p-4 text-body-md">Standard</td>
+                                    <td class="p-4 text-body-md">2h 30m</td>
+                                    <td class="p-4"><span class="text-green-600 font-label-bold text-label-bold">Optimal</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-4">
+                                        <p class="font-body-md text-body-md font-bold">Compression Stage</p>
+                                        <p class="text-label-sm font-label-sm text-on-surface-variant">11:00 AM - 03:00 PM</p>
+                                    </td>
+                                    <td class="p-4 text-body-md">High Speed</td>
+                                    <td class="p-4 text-body-md">4h 00m</td>
+                                    <td class="p-4"><span class="text-amber-600 font-label-bold text-label-bold">Overlap (15m)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Yield Summary -->
+                    <div class="grid grid-cols-2 gap-6 mt-8 p-6 bg-secondary-container/20 rounded-xl border border-secondary-container">
+                        <div class="flex flex-col">
+                            <span class="text-label-sm font-label-bold uppercase tracking-widest text-on-secondary-container mb-2">Total Yield Analysis</span>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-display-md font-bold text-on-surface">1,245,000</span>
+                                <span class="text-on-surface-variant font-body-md">Tablets</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-right">
+                                <p class="text-label-sm font-label-sm text-on-surface-variant">Achieved Qty</p>
+                                <p class="font-body-lg text-body-lg font-bold">98.4%</p>
+                            </div>
+                            <div class="text-right border-l border-outline-variant/30 pl-4">
+                                <p class="text-label-sm font-label-sm text-on-surface-variant">Waste %</p>
+                                <p class="font-body-lg text-body-lg font-bold text-error">1.6%</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Time Exceptions (spans 4) -->
+                <section class="col-span-12 lg:col-span-4 glass-card rounded-xl p-8 border border-outline-variant/40 shadow-sm">
+                    <div class="flex flex-col h-full">
+                        <div class="mb-6">
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">schedule</span> Time Exceptions
+                            </h3>
+                        </div>
+                        <div class="space-y-4 flex-1">
+                            <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/20">
+                                <p class="text-label-sm font-label-bold text-primary mb-1 uppercase">Overtime</p>
+                                <p class="font-display-md text-display-md font-bold text-on-surface">45 <span class="text-body-md font-normal">min</span></p>
+                            </div>
+                            <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/20">
+                                <p class="text-label-sm font-label-bold text-primary mb-1 uppercase">Night Shift Diff.</p>
+                                <p class="font-display-md text-display-md font-bold text-on-surface">00 <span class="text-body-md font-normal">min</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Delays & Notes (full width) -->
+                <section class="col-span-12 glass-card rounded-xl p-8 border border-outline-variant/40 shadow-sm relative">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-error/70"></div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-error">warning</span>
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface">Logged Delays &amp; Critical Notes</h3>
+                        </div>
+                        <button onclick="showPage('delays')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline">
+                            <span class="material-symbols-outlined text-sm">edit</span> Edit
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="p-6 bg-error-container/10 border border-error-container/30 rounded-xl">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <span class="bg-error text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-tighter">Code: D-104</span>
+                                    <h4 class="font-body-lg text-body-lg font-bold mt-2">Mechanical Sensor Failure</h4>
+                                </div>
+                                <span class="text-label-sm font-label-bold text-on-surface-variant">Duration: 18m</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-body-md mb-4">
+                                <div>
+                                    <p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Category</p>
+                                    <p>Technical Issue</p>
+                                </div>
+                                <div>
+                                    <p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Group</p>
+                                    <p>Machine Maintenance</p>
+                                </div>
+                            </div>
+                            <p class="text-body-md text-on-surface-variant bg-white/50 p-3 rounded italic border border-outline-variant/20">
+                                "The proximity sensor on the tablet discharge chute was misaligned due to vibration. Fixed by onsite maintenance engineer."
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+            </div><!-- end bento grid -->
+        </div><!-- end max-w container -->
+
+        <!-- Sticky Bottom Actions -->
+        <div class="fixed bottom-0 right-0 left-0 lg:left-[260px] bg-surface-container-lowest/90 backdrop-blur-md border-t border-outline-variant px-gutter py-4 flex items-center justify-between z-40">
+            <div class="flex items-center gap-3 text-on-surface-variant">
+                <span class="material-symbols-outlined text-[18px]">info</span>
+                <p class="text-label-sm font-label-sm">Once submitted, this batch record will be locked for editing.</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="showPage('delays')" class="px-8 py-3 rounded-lg font-label-bold text-label-bold border border-primary text-primary hover:bg-primary/5 transition-all">
+                    Back to Edit
+                </button>
+                <button id="submitBatchBtn" class="px-10 py-3 rounded-lg font-label-bold text-label-bold bg-primary text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">check_circle</span>
+                    Confirm &amp; Submit Batch
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- ==================== SUCCESS MODAL ==================== -->
+<div class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4" id="successModal">
+    <div class="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm"></div>
+    <div class="bg-surface-container-lowest rounded-2xl p-8 max-w-md w-full shadow-2xl relative z-10 flex flex-col items-center text-center">
+        <div class="w-20 h-20 rounded-full bg-primary-container/20 text-primary flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-5xl" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">verified</span>
+        </div>
+        <h3 class="font-display-md text-display-md font-bold text-on-surface mb-2">Batch Closed Successfully</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-8">All data has been saved and documented in the system.</p>
+        <button class="w-full py-4 rounded-xl bg-primary text-on-primary font-label-bold text-lg hover:opacity-90 transition-opacity"
+                onclick="document.getElementById('successModal').classList.add('hidden'); showPage('dashboard');">
+            Return to Dashboard
+        </button>
+    </div>
+</div>
+
+<script>
+    // ---- Navigation ----
+    function showPage(pageId) {
+        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + pageId).classList.add('active');
+
+        // Desktop nav
+        document.querySelectorAll('#link-dashboard, #link-session, #link-activity, #link-delays, #link-summary').forEach(i => i.classList.remove('active'));
+        const dl = document.getElementById('link-' + pageId);
+        if (dl) dl.classList.add('active');
+
+        // Mobile nav
+        document.querySelectorAll('#mlink-dashboard, #mlink-session, #mlink-activity, #mlink-delays, #mlink-summary').forEach(i => i.classList.remove('active'));
+        const ml = document.getElementById('mlink-' + pageId);
+        if (ml) ml.classList.add('active');
+
+        window.scrollTo(0, 0);
+    }
+
+    // ---- Mobile Sidebar ----
+    function openMobileSidebar() {
+        document.getElementById('mobile-sidebar').classList.add('open');
+        document.getElementById('sidebar-overlay').classList.add('open');
+    }
+    function closeMobileSidebar() {
+        document.getElementById('mobile-sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+    }
+
+    // ---- Session Form Submit ----
+    function handleSessionSubmit(e) {
+        e.preventDefault();
+        const btn = document.getElementById('session-submit-btn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Saving...';
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.innerHTML = orig;
+            btn.disabled = false;
+            showPage('activity');
+        }, 1000);
+    }
+
+    // ---- Submit Batch Button (Summary page) ----
+    document.getElementById('submitBatchBtn').addEventListener('click', function () {
+        const btn = this;
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...`;
+        setTimeout(() => {
+            btn.innerHTML = `<span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">cloud_done</span> Submitted Successfully`;
+            btn.classList.remove('bg-primary');
+            btn.classList.add('bg-green-600');
+            setTimeout(() => {
+                document.getElementById('successModal').classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = orig;
+                btn.classList.add('bg-primary');
+                btn.classList.remove('bg-green-600');
+            }, 1000);
+        }, 2000);
+    });
+
+    // ---- Dashboard table row hover micro-interaction ----
+    document.querySelectorAll('#dashboard-table-body tr').forEach(row => {
+        row.addEventListener('mouseenter', () => {
+            row.style.transform = 'translateX(4px)';
+            row.style.transition = 'transform 0.2s ease-out';
+        });
+        row.addEventListener('mouseleave', () => {
+            row.style.transform = 'translateX(0)';
+        });
+    });
+
+    // ---- Active status pulse ----
+    setInterval(() => {
+        document.querySelectorAll('.bg-secondary-container span.bg-secondary').forEach(el => {
+            el.classList.add('animate-pulse');
+            setTimeout(() => el.classList.remove('animate-pulse'), 1500);
+        });
+    }, 4000);
+
+    // ---- Activity Log form field scale micro-interaction ----
+    document.querySelectorAll('#page-activity input, #page-activity select, #page-activity textarea').forEach(el => {
+        el.addEventListener('focus', () => {
+            const parent = el.closest('.flex-col, .col-span-12');
+            if (parent) { parent.style.transform = 'scale(1.01)'; parent.style.transition = 'transform 0.2s ease'; }
+        });
+        el.addEventListener('blur', () => {
+            const parent = el.closest('.flex-col, .col-span-12');
+            if (parent) { parent.style.transform = 'scale(1)'; }
+        });
+    });
+
+    // ---- Init: show dashboard ----
+    showPage('dashboard');
+</script>
+</body>
+</html>

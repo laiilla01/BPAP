@@ -1,0 +1,299 @@
+<!DOCTYPE html><html class="light" dir="ltr" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>JOSWE (Production Line)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=Be+Vietnam+Pro:wght@600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#213145",
+                    "surface-container": "#e5eeff",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#6bd6e5",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#9cefff",
+                    "tertiary": "#006876",
+                    "surface-bright": "#f8f9ff",
+                    "on-background": "#0b1c30",
+                    "surface-dim": "#cbdbf5",
+                    "surface-variant": "#d3e4fe",
+                    "inverse-on-surface": "#eaf1ff",
+                    "secondary-fixed": "#92f1ff",
+                    "on-tertiary-fixed": "#001f25",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#001f24",
+                    "on-tertiary-fixed-variant": "#004e59",
+                    "on-error": "#ffffff",
+                    "outline": "#6d797c",
+                    "inverse-primary": "#5ed7ea",
+                    "on-secondary-fixed-variant": "#004f57",
+                    "secondary": "#006973",
+                    "on-surface": "#0b1c30",
+                    "on-surface-variant": "#3d494b",
+                    "tertiary-fixed-dim": "#7ad4e5",
+                    "on-primary-container": "#003138",
+                    "surface": "#f8f9ff",
+                    "primary-fixed-dim": "#5ed7ea",
+                    "outline-variant": "#bcc9cb",
+                    "primary-container": "#00a2b5",
+                    "secondary-container": "#86effe",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed": "#001f23",
+                    "tertiary-fixed": "#a0efff",
+                    "on-error-container": "#93000a",
+                    "surface-container-low": "#eff4ff",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#429fb0",
+                    "on-primary-fixed-variant": "#004f58",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "primary": "#006875",
+                    "on-tertiary-container": "#003138",
+                    "on-secondary-container": "#006d78",
+                    "surface-tint": "#006875",
+                    "surface-container-highest": "#d3e4fe",
+                    "background": "#f8f9ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-max": "1440px",
+                    "unit": "4px",
+                    "stack-md": "16px",
+                    "sidebar-width": "260px",
+                    "stack-sm": "8px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "stack-lg": "32px"
+            },
+            "fontFamily": {
+                    "label-sm": ["IBM Plex Sans"],
+                    "headline-sm": ["Be Vietnam Pro"],
+                    "display-lg": ["Be Vietnam Pro"],
+                    "body-lg": ["IBM Plex Sans"],
+                    "body-md": ["IBM Plex Sans"],
+                    "label-bold": ["IBM Plex Sans"],
+                    "data-mono": ["IBM Plex Sans"],
+                    "display-md": ["Be Vietnam Pro"]
+            },
+            "fontSize": {
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "data-mono": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                    "display-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f8f9ff;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for high density layout */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #bcc9cb; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Sidebar Navigation -->
+<aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[260px] bg-surface-container-low border-r border-outline-variant z-50 flex-col py-stack-lg">
+<div class="px-gutter mb-stack-lg">
+<img alt="Health For Life Logo" class="h-10 w-auto object-contain mb-2" src="https://lh3.googleusercontent.com/aida/ADBb0uh702pjKtrgJB1Sgoy5mE_Jb0W-JjqABxypZSFs3QIMdRgpyvJ7dIBRd6sNoLOQLi2pr-CKyISxTraYaiBegzSCmFeAI4spS0vv4MGVDO0yoHT9ycnYgTvqQcgS5M9T83lN-p_5RS6NkezGV3zpYMfUSzemLmIFJhwmfMySju-n3UDJh2GxpGtDedgecmMejkxN4r1Cpt3lXizWUAkkERw13nYPS-p83LJhhjfhkhotaNeYGOjSqAkUnbOe_toS08xxRKqg6u35EQ">
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-bold text-label-bold">Dashboard</span>
+</a>
+<a class="flex items-center gap-stack-md bg-secondary-container text-on-secondary-container border-l-4 border-primary px-6 py-3 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="info">info</span>
+<span class="font-label-bold text-label-bold">Session Info</span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-bold text-label-bold">Activity Log</span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3 transition-all" href="#" style="transform: translateX(0px);">
+<span class="material-symbols-outlined" data-icon="timer_off">timer_off</span>
+<span class="font-label-bold text-label-bold">Delays &amp; Notes</span>
+</a>
+</nav>
+<div class="px-gutter mt-auto">
+<button class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 px-4 rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Batch Entry
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="lg:ml-[260px] min-h-screen w-full flex flex-col">
+
+<!-- Top Bar -->
+<header class="h-16 border-b border-outline-variant dark:border-outline bg-surface-container-lowest dark:bg-inverse-surface flex items-center justify-between px-gutter sticky top-0 z-40">
+    <div class="w-10 h-10 lg:hidden"></div>
+  <div class="flex items-center justify-center flex-1">
+    <h2 class="font-display-md text-display-md font-bold text-primary dark:text-primary-fixed-dim">Production Line</h2>
+  </div>
+  <div class="flex items-center gap-stack-md lg:hidden">
+    <button class="material-symbols-outlined text-primary p-2" data-icon="menu">menu</button>
+  </div>
+  
+</header>
+<!-- Form Wrapper -->
+<div class="flex-1 p-margin-mobile md:p-gutter flex w-full">
+<div class="w-full">
+<!-- Session / Batch Info Form -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-stack-md md:p-stack-lg w-full min-h-[calc(100vh-theme(spacing.16)-theme(spacing.gutter)*2)]">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant pb-stack-md mb-stack-md gap-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="fact_check">fact_check</span>
+                            Session/Batch Info
+                        </h2>
+<span class="text-label-sm font-label-sm text-outline">All fields marked with <span class="text-error">*</span> are required</span>
+</div>
+<form class="space-y-stack-lg">
+<!-- Grid Row 1: Time Context -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-gutter">
+<div class="space-y-1">
+<label class="text-label-bold font-label-bold text-on-surface-variant">Shift <span class="text-error">*</span></label>
+<select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+  <option disabled selected value="">Select Shift</option>
+  <option>Day</option>
+  <option>Night</option>
+  <option>Day-Off</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="text-label-bold font-label-bold text-on-surface-variant">Day <span class="text-error">*</span></label>
+<select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+  <option disabled selected value="">Select Day</option>
+<option>Sun</option>
+<option>Mon</option>
+<option>Tue</option>
+<option>Wed</option>
+<option>Thu</option>
+<option>Fri</option>
+<option>Sat</option>
+</select>
+</div>
+<div class="space-y-1 sm:col-span-2 lg:col-span-1">
+<label class="text-label-bold font-label-bold text-on-surface-variant">Date <span class="text-error">*</span></label>
+<div class="relative">
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="date">
+</div>
+</div></div>
+<!-- Grid Row 2: Product & Batch Identification -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="space-y-1">
+<label class="text-label-bold font-label-bold text-on-surface-variant">Product Name <span class="text-error">*</span></label>
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Enter full product name" type="text">
+</div>
+<div class="space-y-1">
+<label class="text-label-bold font-label-bold text-on-surface-variant">Product Code (Auto)</label>
+<div class="relative">
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" readonly="" type="text" value="FP001">
+<span class="absolute right-3 top-3 material-symbols-outlined text-outline text-sm" data-icon="lock">lock</span>
+</div>
+</div>
+</div>
+
+<!-- Grid Row 3: Environment & Market -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="space-y-1">
+<label class="text-label-bold font-label-bold text-on-surface-variant">Room No. <span class="text-error">*</span></label>
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="e.g.: B1" type="text">
+</div>
+<div class="space-y-1">
+<label class="text-label-bold font-label-bold text-on-surface-variant">Market <span class="text-error">*</span></label>
+<select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+<option>Local</option>
+<option>Export (Europe)</option>
+<option>Export (Middle East)</option>
+<option>Export (Africa)</option>
+</select>
+</div>
+</div>
+<!-- Optional Section: Personnel -->
+<div class="pt-stack-md border-t border-outline-variant">
+<h3 class="text-label-bold font-label-bold text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+                                Employee Names (Optional)
+                            </h3>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-stack-sm">
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 1" type="text">
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 2" type="text">
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 3" type="text">
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 4" type="text">
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 5" type="text">
+</div>
+</div>
+<!-- Form Actions -->
+<div class="flex flex-col sm:flex-row justify-end gap-stack-md pt-stack-lg">
+<button class="w-full sm:w-auto px-gutter py-3 rounded border border-outline text-on-surface-variant hover:bg-surface-container transition-colors font-label-bold text-label-bold" type="button">
+                                Cancel
+                            </button>
+<button class="w-full sm:w-auto px-10 py-3 rounded bg-primary text-on-primary shadow-lg hover:shadow-xl hover:opacity-90 transition-all font-label-bold text-label-bold flex items-center justify-center gap-2" type="submit">
+<span class="">Activity Log</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Footer Disclaimer -->
+
+</div>
+</div>
+</main>
+<!-- Visual Enhancements -->
+<div class="fixed bottom-0 left-0 w-64 h-64 bg-primary opacity-[0.03] rounded-full blur-3xl pointer-events-none"></div>
+<div class="fixed top-0 right-0 w-96 h-96 bg-tertiary opacity-[0.02] rounded-full blur-3xl pointer-events-none"></div>
+<script>
+        // Simple Interaction logic
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin" data-icon="sync">sync</span> Saving...';
+            setTimeout(() => {
+                alert('First page data saved successfully. Moving to next page...');
+                btn.innerHTML = originalText;
+            }, 1000);
+        });
+
+        // Hover scale effect for sidebar items
+        const navItems = document.querySelectorAll('aside nav a');
+        navItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                if(!item.classList.contains('bg-secondary-container')) {
+                    item.style.transform = 'translateX(4px)';
+                }
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+
+
+
+
+</body></html>

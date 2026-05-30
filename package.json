@@ -1,0 +1,13 @@
+{
+  "name": "bpap-full-project",
+  "version": "1.0.0",
+  "description": "Blistering Production Analytics Platform (BPAP) - Full Project",
+  "scripts": {
+    "start":   "cd backend && node server.js",
+    "dev":     "cd backend && npx nodemon server.js",
+    "install": "cd backend && npm install",
+    "setup":   "cd backend && npm install && node utils/seedAdmin.js"
+  },
+  "author": "JOSWE Pharmaceutical - Information Systems Team",
+  "license": "ISC"
+}

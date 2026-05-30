@@ -1,0 +1,264 @@
+{
+  "info": {
+    "name": "BPAP API - Blistering Production Analytics Platform",
+    "description": "JOSWE Pharmaceutical Company - Complete API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000/api" },
+    { "key": "token",    "value": "" },
+    { "key": "refresh",  "value": "" }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const r = pm.response.json();",
+            "if(r.success){ pm.collectionVariables.set('token', r.data.accessToken); pm.collectionVariables.set('refresh', r.data.refreshToken); }"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\": \"admin\", \"password\": \"Admin@2025\"}" }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET", "url": "{{base_url}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST", "url": "{{base_url}}/auth/register",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"username\":\"operator1\",\"email\":\"op1@joswe.com\",\"password\":\"Pass@2025\",\"full_name\":\"Ahmed Hassan\",\"role_id\":1,\"room_assigned\":\"B1\"}" }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST", "url": "{{base_url}}/auth/refresh",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"refreshToken\": \"{{refresh}}\"}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST", "url": "{{base_url}}/auth/logout",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"refreshToken\": \"{{refresh}}\"}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏭 Production",
+      "item": [
+        {
+          "name": "Create Production Record",
+          "request": {
+            "method": "POST", "url": "{{base_url}}/production",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"room\": \"B1\",\n  \"machine\": \"Uhlmann-B1\",\n  \"shift_date\": \"2025-06-01\",\n  \"shift_number\": \"Day\",\n  \"day_of_week\": \"Sun\",\n  \"market_type\": \"Local\",\n  \"planned_quantity\": 10000,\n  \"actual_quantity\": 9500,\n  \"rejected_quantity\": 200,\n  \"downtime_minutes\": 30,\n  \"scheduled_minutes\": 480,\n  \"downtime_cause_name\": \"Machine technical failure\",\n  \"downtime_notes\": \"Conveyor belt issue\",\n  \"process_type\": \"Blistering\",\n  \"activity_type\": \"Blister\",\n  \"feeder_active\": true,\n  \"operator_name\": \"Ahmed Al-Hassan\"\n}" }
+          }
+        },
+        {
+          "name": "Get All Records (paginated)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/production?page=1&limit=20&room=B1", "query": [
+              {"key":"page","value":"1"},{"key":"limit","value":"20"},{"key":"room","value":"B1"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Records with Date Range",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/production?from=2025-06-01&to=2025-06-30", "query": [
+              {"key":"from","value":"2025-06-01"},{"key":"to","value":"2025-06-30"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Record By ID",
+          "request": {
+            "method": "GET", "url": "{{base_url}}/production/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Update Record",
+          "request": {
+            "method": "PUT", "url": "{{base_url}}/production/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"actual_quantity\": 9600, \"rejected_quantity\": 150}" }
+          }
+        },
+        {
+          "name": "Delete Record",
+          "request": {
+            "method": "DELETE", "url": "{{base_url}}/production/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Dashboard",
+      "item": [
+        {
+          "name": "Summary (Executive)",
+          "request": {
+            "method": "GET", "url": "{{base_url}}/dashboard/summary",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Daily KPIs",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/dashboard/daily?date=2025-06-01&room=B1", "query": [
+              {"key":"date","value":"2025-06-01"},{"key":"room","value":"B1"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Monthly KPIs",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/dashboard/monthly?month=2025-06", "query": [
+              {"key":"month","value":"2025-06"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Room Comparison",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/dashboard/rooms?from=2025-06-01&to=2025-06-30", "query": [
+              {"key":"from","value":"2025-06-01"},{"key":"to","value":"2025-06-30"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "OEE Trend Chart Data",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/dashboard/oee-trend?month=2025-06&room=B1", "query": [
+              {"key":"month","value":"2025-06"},{"key":"room","value":"B1"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Full Statistics",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/dashboard/stats?from=2025-06-01&to=2025-06-30", "query": [
+              {"key":"from","value":"2025-06-01"},{"key":"to","value":"2025-06-30"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Audit & Exceptions",
+      "item": [
+        {
+          "name": "Get Audit Trail",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/audit?page=1&limit=20", "query": [
+              {"key":"page","value":"1"},{"key":"limit","value":"20"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Exceptions",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/audit/exceptions?resolved=false", "query": [
+              {"key":"resolved","value":"false"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Resolve Exception",
+          "request": {
+            "method": "PATCH", "url": "{{base_url}}/audit/exceptions/1/resolve",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Downtime Causes",
+          "request": {
+            "method": "GET", "url": "{{base_url}}/audit/downtime-causes",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📁 Export",
+      "item": [
+        {
+          "name": "Export Excel",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/export/excel?from=2025-06-01&to=2025-06-30", "query": [
+              {"key":"from","value":"2025-06-01"},{"key":"to","value":"2025-06-30"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Export PDF",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/export/pdf?from=2025-06-01&to=2025-06-30", "query": [
+              {"key":"from","value":"2025-06-01"},{"key":"to","value":"2025-06-30"}
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "❤️ Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": "http://localhost:5000/health" }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,383 @@
+<!DOCTYPE html><html dir="ltr" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>JOSWE (Production Line)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Be+Vietnam+Pro:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#213145",
+                    "surface-container": "#e5eeff",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#6bd6e5",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#9cefff",
+                    "tertiary": "#006876",
+                    "surface-bright": "#f8f9ff",
+                    "on-background": "#0b1c30",
+                    "surface-dim": "#cbdbf5",
+                    "surface-variant": "#d3e4fe",
+                    "inverse-on-surface": "#eaf1ff",
+                    "secondary-fixed": "#92f1ff",
+                    "on-tertiary-fixed": "#001f25",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#001f24",
+                    "on-tertiary-fixed-variant": "#004e59",
+                    "on-error": "#ffffff",
+                    "outline": "#6d797c",
+                    "inverse-primary": "#5ed7ea",
+                    "on-secondary-fixed-variant": "#004f57",
+                    "secondary": "#006973",
+                    "on-surface": "#0b1c30",
+                    "on-surface-variant": "#3d494b",
+                    "tertiary-fixed-dim": "#7ad4e5",
+                    "on-primary-container": "#003138",
+                    "surface": "#f8f9ff",
+                    "primary-fixed-dim": "#5ed7ea",
+                    "outline-variant": "#bcc9cb",
+                    "primary-container": "#00a2b5",
+                    "secondary-container": "#86effe",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed": "#001f23",
+                    "tertiary-fixed": "#a0efff",
+                    "on-error-container": "#93000a",
+                    "surface-container-low": "#eff4ff",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#429fb0",
+                    "on-primary-fixed-variant": "#004f58",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "primary": "#006875",
+                    "on-tertiary-container": "#003138",
+                    "on-secondary-container": "#006d78",
+                    "surface-tint": "#006875",
+                    "surface-container-highest": "#d3e4fe",
+                    "background": "#f8f9ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-max": "1440px",
+                    "unit": "4px",
+                    "stack-md": "16px",
+                    "sidebar-width": "260px",
+                    "stack-sm": "8px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "stack-lg": "32px"
+            },
+            "fontFamily": {
+                    "label-sm": ["IBM Plex Sans"],
+                    "headline-sm": ["Be Vietnam Pro"],
+                    "display-lg": ["Be Vietnam Pro"],
+                    "body-lg": ["IBM Plex Sans"],
+                    "body-md": ["IBM Plex Sans"],
+                    "label-bold": ["IBM Plex Sans"],
+                    "data-mono": ["IBM Plex Sans"],
+                    "display-md": ["Be Vietnam Pro"]
+            },
+            "fontSize": {
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "data-mono": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                    "display-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            background-color: #f8f9ff;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .sidebar-active {
+            border-left: 4px solid #006875;
+        }
+        /* Mobile adjustment for main content */
+        @media (max-width: 768px) {
+            .sidebar-nav {
+                display: none;
+            }
+            main {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar -->
+<aside class="sidebar-nav fixed left-0 top-0 h-screen w-sidebar-width bg-surface-container-low border-r border-outline-variant flex flex-col py-stack-lg z-50">
+<div class="px-gutter mb-stack-lg">
+<img alt="Health For Life Logo" class="h-10 object-contain mb-2" src="https://lh3.googleusercontent.com/aida/ADBb0uh702pjKtrgJB1Sgoy5mE_Jb0W-JjqABxypZSFs3QIMdRgpyvJ7dIBRd6sNoLOQLi2pr-CKyISxTraYaiBegzSCmFeAI4spS0vv4MGVDO0yoHT9ycnYgTvqQcgS5M9T83lN-p_5RS6NkezGV3zpYMfUSzemLmIFJhwmfMySju-n3UDJh2GxpGtDedgecmMejkxN4r1Cpt3lXizWUAkkERw13nYPS-p83LJhhjfhkhotaNeYGOjSqAkUnbOe_toS08xxRKqg6u35EQ">
+</div>
+<nav class="flex-1">
+<a class="flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-4 py-3 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-bold text-label-bold">Dashboard</span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-4 py-3 transition-colors" href="#">
+<span class="material-symbols-outlined">info</span>
+<span class="font-label-bold text-label-bold">Session Info</span>
+</a>
+<a class="flex items-center gap-stack-md bg-secondary-container text-on-secondary-container border-l-4 border-primary px-4 py-3" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-bold text-label-bold">Activity Log</span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-4 py-3 transition-colors" href="#">
+<span class="material-symbols-outlined">timer_off</span>
+<span class="font-label-bold text-label-bold">Delays &amp; Notes</span>
+</a>
+</nav>
+<div class="px-gutter mt-auto">
+<button class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span>
+                New Batch Entry
+            </button>
+</div>
+</aside>
+<!-- Main Content Shell -->
+<main class="ml-sidebar-width min-h-screen transition-all duration-300">
+<!-- Top Bar -->
+<header class="h-16 border-b border-outline-variant dark:border-outline bg-surface-container-lowest dark:bg-inverse-surface flex items-center justify-between px-gutter sticky top-0 z-40">
+  
+  <!-- مساحة فارغة وهمية على اليسار لموازنة زر القائمة وتحقيق التوسط الدقيق -->
+  <div class="w-10 h-10 lg:hidden"></div>
+
+  <!-- العنوان ممركّز في المنتصف -->
+  <div class="flex items-center justify-center flex-1">
+    <h2 class="font-display-md text-display-md font-bold text-primary dark:text-primary-fixed-dim">Production Line</h2>
+  </div>
+
+  <!-- زر القائمة جهة اليمين (يختفي في الشاشات الكبيرة) -->
+  <div class="flex items-center gap-stack-md lg:hidden">
+    <button class="material-symbols-outlined text-primary p-2" data-icon="menu">menu</button>
+  </div>
+  
+</header>
+<!-- Main Form Card -->
+<div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm w-full">
+<!-- Part 1: Activities -->
+<section class="p-gutter border-b border-outline-variant">
+<div class="flex items-center gap-2 mb-stack-md text-primary">
+<span class="material-symbols-outlined">pending_actions</span>
+<h3 class="font-headline-sm text-headline-sm">Part One: Activity Details</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Process Code -->
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Process Code <span class="text-error">*</span></label>
+<select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+<option>Select Process...</option>
+<option>Adjustment</option>
+<option>Blistering</option>
+<option>Cleaning</option>
+<option>Line Clearence</option>
+<option>Delay</option>
+<option>Discharging,Weighing & Finalizing</option>
+<option>Sorting</option>
+<option>DE-Blister</option>
+<option>Break</option>
+<option>P.Maintenance</option>
+<option>Polisher</option>
+
+</select>
+</div>
+<!-- Activity -->
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Activity </label>
+<select class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+<option>Select Activity...</option>
+<option>F.C</option>
+<option>P.C</option>
+<option>Disassembly & Reassembly</option>
+<option>Tablet</option>
+<option>Blister</option>
+<option>Waiting for Package</option>
+<option>Weighing</option>
+<option>Waiting Q.A Department</option>
+<option>Stop Packaging</option>
+<option>Heater Calibration</option>
+<option>Capsules</option>
+<option>Calibration</option>
+<option>Camera Calibration</option>
+</select>
+</div>
+<!-- Speed-Cat -->
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Speed-Cat</label>
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Enter Speed Category" type="text">
+</div>
+<!-- Feeder -->
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-2">Feeder</label>
+<div class="flex gap-6 h-full items-center">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="text-primary focus:ring-primary h-5 w-5 cursor-pointer" name="feeder" type="radio">
+<span class="font-body-md group-hover:text-primary transition-colors">Manual</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="text-primary focus:ring-primary h-5 w-5 cursor-pointer" name="feeder" type="radio">
+<span class="font-body-md group-hover:text-primary transition-colors">Automatic</span>
+</label>
+</div>
+</div>
+<!-- Start/End Time -->
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Start Time</label>
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="time">
+</div>
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">End Time</label>
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="time">
+</div>
+</div>
+<!-- Automatic Fields -->
+<div class="mt-gutter grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-stack-md p-stack-md bg-surface-container-low rounded-xl">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-label-sm">lock</span>
+<label class="font-label-bold text-label-bold text-on-surface-variant">Duration</label>
+</div>
+<div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">02:45:00</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="block font-label-bold text-label-bold text-on-surface-variant">Overlap</label>
+<div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono text-error">00:15:00</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="block font-label-bold text-label-bold text-on-surface-variant">Overtime</label>
+<div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="block font-label-bold text-label-bold text-on-surface-variant">Night Shift</label>
+<div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="block font-label-bold text-label-bold text-on-surface-variant">Achieved (Y/N)</label>
+<div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono flex items-center justify-center overflow-hidden">
+<select class="bg-transparent border-none p-0 m-0 text-green-800 font-bold text-xs uppercase focus:ring-0 cursor-pointer w-full text-center appearance-none">
+<option selected="" value="Y">Yes (Y)</option>
+<option value="N">No (N)</option>
+</select>
+</div>
+</div>
+</div>
+</section>
+<!-- Part 2: Quantities -->
+<section class="p-gutter">
+<div class="flex items-center gap-2 mb-stack-md text-primary">
+<span class="material-symbols-outlined">analytics</span>
+<h3 class="font-headline-sm text-headline-sm">Part Two: Quantities &amp; Results</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Received Qty (kg)</label>
+<div class="relative">
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="0.01" type="number" value="500.00">
+
+</div>
+</div>
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">No. of Tablets</label>
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="number" value="150000">
+</div>
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Achieved Qty (kg)</label>
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="0.01" type="number" value="485.50">
+</div>
+<div class="flex flex-col">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Quantity Blister <span class="text-label-sm opacity-60 font-normal">(Optional)</span></label>
+<input class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="--" type="number">
+</div>
+</div>
+<!-- Automatic Calculations -->
+<div class="mt-gutter bg-surface-container rounded-xl p-gutter border-l-4 border-tertiary">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="flex flex-col justify-center">
+<span class="font-label-bold text-label-bold text-on-surface-variant">Avg Tablet Weight (gm)</span>
+<div class="flex items-baseline gap-2">
+<span class="text-display-md font-bold text-tertiary">0.323</span>
+<span class="text-label-sm text-on-surface-variant">gm</span>
+</div>
+</div>
+<div class="flex flex-col justify-center">
+<span class="font-label-bold text-label-bold text-on-surface-variant">Waste (kg)</span>
+<div class="flex items-baseline gap-2">
+<span class="text-display-md font-bold text-error">14.50</span>
+<span class="text-label-sm text-on-surface-variant">kg</span>
+</div>
+</div>
+<div class="flex flex-col justify-center">
+<div class="flex justify-between items-baseline mb-1">
+<span class="font-label-bold text-label-bold text-on-surface-variant">Yield %</span>
+<span class="text-display-md font-bold text-primary">97.10%</span>
+</div>
+<div class="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 97.1%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Bar -->
+<div class="bg-surface-container-low p-gutter flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-outline-variant">
+<button class="w-full sm:w-auto px-8 py-3 rounded-lg border border-outline text-on-surface font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+                        Back
+                    </button>
+<div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+<button class="w-full sm:w-auto px-8 py-3 rounded-lg border border-primary text-primary font-label-bold text-label-bold hover:bg-primary/5 transition-colors">Cancel</button>
+<button class="w-full sm:w-auto px-10 py-3 rounded-lg bg-primary text-on-primary font-label-bold text-label-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                            Delays &amp; Notes<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('focus', () => {
+                const parent = el.closest('.flex-col, .col-span-12');
+                if (parent) {
+                    parent.classList.add('scale-[1.01]');
+                    parent.style.transition = 'transform 0.2s ease';
+                }
+            });
+            el.addEventListener('blur', () => {
+                const parent = el.closest('.flex-col, .col-span-12');
+                if (parent) {
+                    parent.classList.remove('scale-[1.01]');
+                }
+            });
+        });
+    </script>
+
+
+
+
+</body></html>
