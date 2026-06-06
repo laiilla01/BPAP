@@ -1,1 +1,14 @@
 2026-05-30 23:56:35 [ERROR]: ❌ SQL Server connection failed:
+2026-06-01 21:52:59 [ERROR]: ❌ SQL Server connection failed:
+2026-06-01 21:57:35 [ERROR]: ❌ SQL Server connection failed:
+2026-06-01 22:00:31 [ERROR]: ❌ SQL Server connection failed:
+2026-06-01 22:01:26 [ERROR]: ❌ SQL Server connection failed:
+2026-06-02 22:54:35 [ERROR]: ❌ SQL Server connection failed:
+2026-06-02 23:05:17 [ERROR]: ❌ SQL Server connection failed:
+2026-06-02 23:24:21 [INFO]: ✅ Connected to SQL Server successfully
+2026-06-02 23:24:44 [INFO]: GET /health 200 114 - 5.165 ms | ::1
+2026-06-02 23:24:44 [INFO]: GET /favicon.ico 404 58 - 0.573 ms | ::1
+2026-06-02 23:24:44 [INFO]: GET /health 200 114 - 0.661 ms | ::1
+2026-06-02 23:24:55 [INFO]: GET /health 200 114 - 0.320 ms | ::1
+2026-06-02 23:24:55 [INFO]: GET /favicon.ico 404 58 - 0.309 ms | ::1
+2026-06-06 22:59:43 [ERROR]: ❌ SQL Server connection failed:

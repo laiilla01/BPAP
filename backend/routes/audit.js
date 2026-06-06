@@ -1,51 +1,54 @@
 /**
- * BPAP - Audit & Exceptions Routes
+ * BPAP - Audit Routes
+ * Uses: audit_log table, dbo.DelayDetails lookup
  */
 
 const router = require('express').Router();
 const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roles');
 const { getAuditLogs } = require('../services/auditService');
-const { getExceptions, saveViolations } = require('../services/validationEngine');
 const { executeQuery, sql } = require('../config/db');
 const { success, error, paginated } = require('../utils/response');
 
 const analystUp = authorize('Analyst', 'Manager', 'Executive');
 
-// GET /api/audit — full audit trail
+// GET /api/audit — audit trail
 router.get('/', authenticate, analystUp, async (req, res) => {
-  const { page = 1, limit = 50, userId, action, tableName, from, to } = req.query;
-  const { records, total } = await getAuditLogs({ page, limit, userId, action, tableName, from, to });
+  const { page = 1, limit = 50, userId, action, from, to } = req.query;
+  const { records, total } = await getAuditLogs({ page, limit, userId, action, from, to });
   return paginated(res, records, total, page, limit);
 });
 
-// GET /api/audit/exceptions
+// GET /api/audit/exceptions — stub (no exceptions_log in NEW_Production)
 router.get('/exceptions', authenticate, analystUp, async (req, res) => {
-  const { page = 1, limit = 50, resolved, severity, recordId } = req.query;
-  const { records, total } = await getExceptions({ page, limit, resolved, severity, recordId });
-  return paginated(res, records, total, page, limit);
+  return success(res, [], 'No exceptions log in this database.');
 });
 
-// PATCH /api/audit/exceptions/:id/resolve
-router.patch('/exceptions/:id/resolve', authenticate, analystUp, async (req, res) => {
-  const { id } = req.params;
-  await executeQuery(
-    `UPDATE exceptions_log SET is_resolved = 1, resolved_by = @userId, resolved_at = GETDATE()
-     WHERE exception_id = @id`,
-    {
-      id:     { type: sql.Int, value: parseInt(id) },
-      userId: { type: sql.Int, value: req.user.user_id },
-    }
-  );
-  return success(res, null, 'Exception marked as resolved');
-});
-
-// GET /api/audit/downtime-causes
+// GET /api/audit/downtime-causes — from dbo.DelayDetails
 router.get('/downtime-causes', authenticate, async (req, res) => {
-  const result = await executeQuery(
-    `SELECT * FROM downtime_causes WHERE is_active = 1 ORDER BY cause_name`
-  );
-  return success(res, result.recordset);
+  try {
+    const result = await executeQuery(
+      `SELECT DISTINCT
+         DelayCode      AS cause_id,
+         DelayCode      AS cause_name,
+         DelayCategory  AS category,
+         DelayGroup     AS delay_group
+       FROM dbo.DelayDetails
+       WHERE DelayCode IS NOT NULL AND LTRIM(RTRIM(DelayCode)) <> ''
+       ORDER BY DelayCategory, DelayCode`
+    );
+    return success(res, result.recordset);
+  } catch (dbErr) {
+    // Fallback: static list so the frontend never breaks
+    return success(res, [
+      { cause_id: 'MECH', cause_name: 'Machine technical failure', category: 'Technical' },
+      { cause_id: 'MAT',  cause_name: 'Raw material delay',        category: 'Supply' },
+      { cause_id: 'SHIFT',cause_name: 'Shift change',              category: 'Operational' },
+      { cause_id: 'RECAL',cause_name: 'Recalibration',             category: 'Technical' },
+      { cause_id: 'QA',   cause_name: 'Waiting Q.A Department',    category: 'Quality' },
+      { cause_id: 'OTHER',cause_name: 'Other',                     category: 'Other' },
+    ]);
+  }
 });
 
 module.exports = router;

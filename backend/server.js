@@ -37,7 +37,8 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').
 app.use(cors({
   origin: (origin, callback) => {
     // Allow no-origin requests (e.g. Postman, mobile apps in dev)
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    // Also allow 'null' string origin sent by file:// protocol in browsers
+    if (!origin || origin === 'null' || allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS policy: origin ${origin} not allowed`));
   },
   credentials: true,
@@ -100,18 +101,21 @@ app.use(errorHandler);
 
 // ── Start Server ──────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-
 const startServer = async () => {
   try {
-    // Connect to SQL Server before accepting requests
     await getPool();
 
     app.listen(PORT, () => {
-      logger.info(`🚀 BPAP Server running on port ${PORT} [${process.env.NODE_ENV}]`);
-      logger.info(`📋 API Docs: http://localhost:${PORT}/health`);
+      console.log(`🚀 BPAP Server running on port ${PORT}`);
+      console.log(`📋 Health Check: http://localhost:${PORT}/health`);
     });
+
   } catch (err) {
-    logger.error('Failed to start server:', err.message);
+    console.error('==============================');
+    console.error('SERVER STARTUP ERROR');
+    console.error('==============================');
+    console.error(err);
+    console.error('==============================');
     process.exit(1);
   }
 };

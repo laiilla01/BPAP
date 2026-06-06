@@ -3,13 +3,13 @@ const logger = require('../utils/logger');
 
 const dbConfig = {
   server: process.env.DB_SERVER || 'localhost',
-  port: parseInt(process.env.DB_PORT) || 1433,
-  database: process.env.DB_NAME || 'BPAP_DB',
-  user: process.env.DB_USER || 'sa',
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : undefined,
+  database: process.env.DB_NAME ,
+  user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   options: {
-    encrypt: process.env.DB_ENCRYPT === 'true',       
-    trustServerCertificate: process.env.DB_TRUST_CERT !== 'false', 
+    encrypt:                process.env.DB_ENCRYPT === 'true',
+    trustServerCertificate: process.env.DB_TRUST_CERT !== 'false', // default true for local SQL Server
     enableArithAbort: true,
   },
   pool: {
@@ -33,6 +33,7 @@ const getPool = async () => {
     return pool;
   } catch (err) {
     logger.error('❌ SQL Server connection failed:', err.message);
+    console.error(err);
     throw err;
   }
 };

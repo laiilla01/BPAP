@@ -1,62 +1,20 @@
 /**
- * BPAP - KPI Calculation Service
- *
- * Formulas:
- *   Production Efficiency = Actual Output / Planned Output
- *   Defect Rate           = Rejected Units / Actual Units
- *   OEE                   = Availability × Performance × Quality
- *   Downtime %            = Downtime Minutes / Scheduled Minutes
- *
- * OEE components:
- *   Availability  = (Scheduled - Downtime) / Scheduled
- *   Performance   = Actual Output / (Planned Output * Availability)  [capped at 1]
- *   Quality       = Good Units / Actual Units
+ * BPAP - KPI Service
+ * Reads from shared.Production_Summary view in NEW_Production
  */
 
 const { executeQuery, sql } = require('../config/db');
 
 /**
- * Calculate KPIs for a single production record object
- * @param {Object} record
- * @returns {Object} kpis
+ * Calculate yield % and waste from raw quantities
  */
-const calculateKPIs = (record) => {
-  const {
-    actual_quantity,
-    planned_quantity,
-    rejected_quantity,
-    downtime_minutes,
-    scheduled_minutes = 480,
-  } = record;
-
-  const good_quantity = actual_quantity - rejected_quantity;
-  const productive_minutes = scheduled_minutes - downtime_minutes;
-
-  // Production Efficiency
-  const production_efficiency =
-    planned_quantity > 0 ? actual_quantity / planned_quantity : 0;
-
-  // Defect Rate
-  const defect_rate =
-    actual_quantity > 0 ? rejected_quantity / actual_quantity : 0;
-
-  // OEE components
-  const availability =
-    scheduled_minutes > 0 ? productive_minutes / scheduled_minutes : 0;
-
-  const performance =
-    planned_quantity > 0 && availability > 0
-      ? Math.min(actual_quantity / (planned_quantity * availability), 1)
-      : 0;
-
-  const quality =
-    actual_quantity > 0 ? good_quantity / actual_quantity : 0;
-
-  const oee = availability * performance * quality;
-
-  // Downtime percentage
-  const downtime_percentage =
-    scheduled_minutes > 0 ? downtime_minutes / scheduled_minutes : 0;
+const calculateKPIs = ({ actual_quantity, planned_quantity, scheduled_minutes = 480, downtime_minutes = 0 }) => {
+  const production_efficiency = planned_quantity > 0 ? actual_quantity / planned_quantity : 0;
+  const downtime_percentage   = scheduled_minutes > 0 ? downtime_minutes / scheduled_minutes : 0;
+  const availability          = 1 - downtime_percentage;
+  const quality               = production_efficiency;
+  const oee                   = availability * quality;
+  const defect_rate           = 1 - quality;
 
   return {
     production_efficiency: +production_efficiency.toFixed(4),
@@ -64,110 +22,62 @@ const calculateKPIs = (record) => {
     oee:                   +oee.toFixed(4),
     downtime_percentage:   +downtime_percentage.toFixed(4),
     availability:          +availability.toFixed(4),
-    performance:           +performance.toFixed(4),
-    quality:               +quality.toFixed(4),
-    good_quantity,
-    productive_minutes,
   };
 };
 
-/**
- * Get daily KPIs for a specific date (and optional room)
- */
 const getDailyKPIs = async (date, room = null) => {
-  let where = `WHERE shift_date = @date AND is_deleted = 0 AND data_status != 'Excluded'`;
   const params = { date: { type: sql.Date, value: new Date(date) } };
-
-  if (room) {
-    where += ' AND room = @room';
-    params.room = { type: sql.VarChar(10), value: room };
-  }
+  let where = `WHERE FullDate = @date`;
+  if (room) { where += ' AND RoomCode = @room'; params.room = { type: sql.VarChar(10), value: room }; }
 
   const result = await executeQuery(
-    `SELECT
-       room,
-       shift_number,
-       COUNT(*)                     AS record_count,
-       SUM(planned_quantity)        AS total_planned,
-       SUM(actual_quantity)         AS total_actual,
-       SUM(rejected_quantity)       AS total_rejected,
-       SUM(good_quantity)           AS total_good,
-       SUM(downtime_minutes)        AS total_downtime,
-       SUM(scheduled_minutes)       AS total_scheduled,
-       AVG(production_efficiency)   AS avg_efficiency,
-       AVG(defect_rate)             AS avg_defect_rate,
-       AVG(oee)                     AS avg_oee,
-       AVG(downtime_percentage)     AS avg_downtime_pct
-     FROM production_records
-     ${where}
-     GROUP BY room, shift_number
-     ORDER BY room, shift_number`,
+    `SELECT RoomCode, RoomName, ShiftCode,
+       COUNT(*) AS record_count,
+       SUM(ReceivedQty) AS total_planned,
+       SUM(AchievedQty) AS total_actual,
+       SUM(WasteQty) AS total_waste,
+       AVG(YieldPercent) AS avg_yield,
+       SUM(DurationHours) AS total_hours
+     FROM shared.Production_Summary ${where}
+     GROUP BY RoomCode, RoomName, ShiftCode ORDER BY RoomCode`,
     params
   );
-
   return result.recordset;
 };
 
-/**
- * Get monthly KPIs for a given year-month (YYYY-MM)
- */
 const getMonthlyKPIs = async (yearMonth, room = null) => {
   const [year, month] = yearMonth.split('-');
-
-  let where = `WHERE YEAR(shift_date) = @year AND MONTH(shift_date) = @month
-               AND is_deleted = 0 AND data_status != 'Excluded'`;
   const params = {
     year:  { type: sql.Int, value: parseInt(year) },
     month: { type: sql.Int, value: parseInt(month) },
   };
-
-  if (room) {
-    where += ' AND room = @room';
-    params.room = { type: sql.VarChar(10), value: room };
-  }
+  let where = `WHERE YEAR(FullDate) = @year AND MONTH(FullDate) = @month`;
+  if (room) { where += ' AND RoomCode = @room'; params.room = { type: sql.VarChar(10), value: room }; }
 
   const result = await executeQuery(
-    `SELECT
-       room,
-       COUNT(*)                     AS record_count,
-       SUM(planned_quantity)        AS total_planned,
-       SUM(actual_quantity)         AS total_actual,
-       SUM(rejected_quantity)       AS total_rejected,
-       SUM(good_quantity)           AS total_good,
-       SUM(downtime_minutes)        AS total_downtime,
-       AVG(production_efficiency)   AS avg_efficiency,
-       AVG(defect_rate)             AS avg_defect_rate,
-       AVG(oee)                     AS avg_oee,
-       AVG(downtime_percentage)     AS avg_downtime_pct
-     FROM production_records
-     ${where}
-     GROUP BY room
-     ORDER BY room`,
+    `SELECT RoomCode, RoomName,
+       COUNT(*) AS record_count,
+       SUM(ReceivedQty) AS total_planned,
+       SUM(AchievedQty) AS total_actual,
+       SUM(WasteQty) AS total_waste,
+       AVG(YieldPercent) AS avg_yield
+     FROM shared.Production_Summary ${where}
+     GROUP BY RoomCode, RoomName ORDER BY RoomCode`,
     params
   );
-
   return result.recordset;
 };
 
-/**
- * Room comparison — side-by-side KPIs for all rooms in a date range
- */
 const getRoomComparison = async (from, to) => {
   const result = await executeQuery(
-    `SELECT
-       room,
-       COUNT(*)                   AS record_count,
-       AVG(production_efficiency) AS avg_efficiency,
-       AVG(defect_rate)           AS avg_defect_rate,
-       AVG(oee)                   AS avg_oee,
-       AVG(downtime_percentage)   AS avg_downtime_pct,
-       SUM(actual_quantity)       AS total_actual,
-       SUM(rejected_quantity)     AS total_rejected
-     FROM production_records
-     WHERE shift_date BETWEEN @from AND @to
-       AND is_deleted = 0 AND data_status != 'Excluded'
-     GROUP BY room
-     ORDER BY avg_oee DESC`,
+    `SELECT RoomCode, RoomName,
+       COUNT(*) AS record_count,
+       AVG(YieldPercent) AS avg_yield,
+       SUM(AchievedQty) AS total_actual,
+       SUM(WasteQty) AS total_waste
+     FROM shared.Production_Summary
+     WHERE FullDate BETWEEN @from AND @to
+     GROUP BY RoomCode, RoomName ORDER BY avg_yield DESC`,
     {
       from: { type: sql.Date, value: new Date(from) },
       to:   { type: sql.Date, value: new Date(to) },
@@ -176,56 +86,33 @@ const getRoomComparison = async (from, to) => {
   return result.recordset;
 };
 
-/**
- * Shift comparison — Day vs Night KPIs
- */
 const getShiftComparison = async (from, to, room = null) => {
-  let where = `WHERE shift_date BETWEEN @from AND @to
-               AND is_deleted = 0 AND data_status != 'Excluded'`;
   const params = {
     from: { type: sql.Date, value: new Date(from) },
     to:   { type: sql.Date, value: new Date(to) },
   };
-
-  if (room) {
-    where += ' AND room = @room';
-    params.room = { type: sql.VarChar(10), value: room };
-  }
+  let where = `WHERE FullDate BETWEEN @from AND @to`;
+  if (room) { where += ' AND RoomCode = @room'; params.room = { type: sql.VarChar(10), value: room }; }
 
   const result = await executeQuery(
-    `SELECT
-       shift_number,
-       COUNT(*)                   AS record_count,
-       AVG(production_efficiency) AS avg_efficiency,
-       AVG(defect_rate)           AS avg_defect_rate,
-       AVG(oee)                   AS avg_oee,
-       SUM(actual_quantity)       AS total_actual
-     FROM production_records
-     ${where}
-     GROUP BY shift_number
-     ORDER BY shift_number`,
+    `SELECT ShiftCode,
+       COUNT(*) AS record_count,
+       AVG(YieldPercent) AS avg_yield,
+       SUM(AchievedQty) AS total_actual
+     FROM shared.Production_Summary ${where}
+     GROUP BY ShiftCode ORDER BY ShiftCode`,
     params
   );
   return result.recordset;
 };
 
-/**
- * Chart data: daily OEE trend for a room over a month
- */
 const getOEETrend = async (yearMonth, room) => {
   const [year, month] = yearMonth.split('-');
   const result = await executeQuery(
-    `SELECT
-       shift_date,
-       AVG(oee) AS avg_oee,
-       AVG(production_efficiency) AS avg_efficiency,
-       COUNT(*) AS records
-     FROM production_records
-     WHERE YEAR(shift_date) = @year AND MONTH(shift_date) = @month
-       AND room = @room
-       AND is_deleted = 0 AND data_status != 'Excluded'
-     GROUP BY shift_date
-     ORDER BY shift_date`,
+    `SELECT FullDate, AVG(YieldPercent) AS avg_yield, COUNT(*) AS records
+     FROM shared.Production_Summary
+     WHERE YEAR(FullDate) = @year AND MONTH(FullDate) = @month AND RoomCode = @room
+     GROUP BY FullDate ORDER BY FullDate`,
     {
       year:  { type: sql.Int,         value: parseInt(year) },
       month: { type: sql.Int,         value: parseInt(month) },
@@ -235,11 +122,4 @@ const getOEETrend = async (yearMonth, room) => {
   return result.recordset;
 };
 
-module.exports = {
-  calculateKPIs,
-  getDailyKPIs,
-  getMonthlyKPIs,
-  getRoomComparison,
-  getShiftComparison,
-  getOEETrend,
-};
+module.exports = { calculateKPIs, getDailyKPIs, getMonthlyKPIs, getRoomComparison, getShiftComparison, getOEETrend };

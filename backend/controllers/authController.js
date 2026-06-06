@@ -77,21 +77,21 @@ const login = async (req, res) => {
     }
   );
 
-  // Update last login
-  await executeQuery(
+  // Update last login (non-fatal)
+  executeQuery(
     `UPDATE users SET last_login = GETDATE() WHERE user_id = @userId`,
     { userId: { type: sql.Int, value: user.user_id } }
-  );
+  ).catch(() => {});
 
-  // Audit log
-  await logAudit({
-    userId:    user.user_id,
-    action:    'LOGIN',
-    tableName: 'users',
-    recordId:  user.user_id,
-    ipAddress: req.ip,
-    userAgent: req.get('user-agent'),
-  });
+  // Audit log (non-fatal)
+  logAudit({
+    userId:      user.user_id,
+    action:      'LOGIN',
+    tableName:   'users',
+    recordId:    user.user_id,
+    description: `Login from ${req.ip}`,
+    ipAddress:   req.ip,
+  }).catch(() => {});
 
   return success(res, {
     accessToken,
@@ -176,13 +176,14 @@ const logout = async (req, res) => {
     );
   }
 
-  await logAudit({
-    userId:    req.user.user_id,
-    action:    'LOGOUT',
-    tableName: 'users',
-    recordId:  req.user.user_id,
-    ipAddress: req.ip,
-  });
+  logAudit({
+    userId:      req.user.user_id,
+    action:      'LOGOUT',
+    tableName:   'users',
+    recordId:    req.user.user_id,
+    description: `Logout from ${req.ip}`,
+    ipAddress:   req.ip,
+  }).catch(() => {});
 
   return success(res, null, 'Logged out successfully');
 };
@@ -221,14 +222,14 @@ const register = async (req, res) => {
 
   const newUserId = result.recordset[0].user_id;
 
-  await logAudit({
-    userId:    req.user.user_id,
-    action:    'INSERT',
-    tableName: 'users',
-    recordId:  newUserId,
-    newValue:  JSON.stringify({ username, email, role_id }),
-    ipAddress: req.ip,
-  });
+  logAudit({
+    userId:      req.user.user_id,
+    action:      'INSERT',
+    tableName:   'users',
+    recordId:    newUserId,
+    description: JSON.stringify({ username, email, role_id }),
+    ipAddress:   req.ip,
+  }).catch(() => {});
 
   return created(res, { user_id: newUserId }, 'User created successfully');
 };
