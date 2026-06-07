@@ -1838,3 +1838,5 @@
 2026-06-07 22:10:16 [INFO]: GET /api/production/products 304 - - 387.112 ms | ::1
 2026-06-07 22:10:16 [INFO]: GET /api/dashboard/stats?from=2026-05-08&to=2026-06-07 401 77 - 0.479 ms | ::1
 2026-06-07 22:14:42 [INFO]: SIGINT received — shutting down gracefully
+2026-06-07 22:22:52 [INFO]: Connected to SQL Server successfully
+2026-06-07 22:37:51 [INFO]: SIGINT received — shutting down gracefully
