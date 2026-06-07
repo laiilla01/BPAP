@@ -1,109 +1,186 @@
-# BPAP — Blistering Production Analytics Platform
-**JOSWE Pharmaceutical Company**
+# 🏭 BPAP — Blistering Production Analytics Platform
+
+> A full-stack production data management system developed in cooperation with **JOSWE Pharmaceutical Company**.  
+> Yarmouk University · Faculty of Information Technology and Computer Science · 2025/2026
 
 ---
 
-## Project Structure
+## 👥 Team
+
+| Name | ID |
+|------|----|
+| Laila Al-Omari | 2022903105 |
+| Salsabeel Quraan | 2022903114 |
+| Rowaa Hatamleh | 2022903100 |
+| Noor Shakhatreh | 2022903084 |
+
+**Supervisor:** Dr. Alaadean Al-Hmoud
+
+---
+
+## 📌 Overview
+
+JOSWE's Blistering Production Department manages tablet and capsule packaging across six rooms (B1, B3, B4, B5, B6, B7). Production tracking was previously done manually via Excel, leading to formula errors, inconsistent formats, and unreliable KPIs.
+
+**BPAP** solves this by:
+- Replacing error-prone Excel entry with a controlled web-based interface
+- Running a structured ETL pipeline into a centralized SQL Server database
+- Delivering real-time KPI dashboards for management decision-making
+
+---
+
+## 🏗️ System Architecture
 
 ```
-JOSWE-UI/                              ← Root project folder
-│
-├── 📄 JOSWE_Production_Line-UI-Front.html   ← Main login / session entry page
-├── 📄 Dashboard.html                        ← KPI dashboard
-├── 📄 Activity Log.html                     ← Production records log
-├── 📄 Batch Info.html                       ← Batch information
-├── 📄 Delay & Notes.html                    ← Delay / downtime entry
-├── 📄 Summary.html                          ← Summary & export page
-│
-└── backend/                           ← Node.js API server
-    ├── server.js                      ← Entry point (port 5000)
-    ├── package.json
-    ├── .env                           ← Your config (create from .env.example)
-    ├── .env.example
-    ├── SETUP.md                       ← Detailed setup guide
-    ├── POSTMAN_COLLECTION.json        ← API test collection
-    │
-    ├── config/
-    │   ├── db.js                      ← SQL Server connection
-    │   └── schema.sql                 ← Run this first in SQL Server
-    │
-    ├── controllers/
-    │   ├── authController.js
-    │   ├── productionController.js
-    │   ├── dashboardController.js
-    │   └── exportController.js
-    │
-    ├── middleware/
-    │   ├── auth.js                    ← JWT verification
-    │   ├── roles.js                   ← Role-based access
-    │   ├── errorHandler.js
-    │   ├── requestLogger.js
-    │   └── validate.js
-    │
-    ├── routes/
-    │   ├── auth.js
-    │   ├── production.js
-    │   ├── dashboard.js
-    │   ├── audit.js
-    │   └── export.js
-    │
-    ├── services/
-    │   ├── auditService.js            ← Append-only audit trail
-    │   ├── kpiService.js              ← OEE, efficiency, defect rate
-    │   └── validationEngine.js        ← Logical validation + exceptions
-    │
-    └── utils/
-        ├── logger.js
-        ├── response.js
-        ├── seedAdmin.js               ← Run once to create admin user
-        └── frontendIntegration.js     ← fetch() examples for HTML pages
+[HTML Data Entry UI]
+        ↓
+[Node.js / Express API]
+        ↓
+[ETL Pipeline (SQL Stored Procedures)]
+        ↓
+[Microsoft SQL Server — NEW_Production]
+        ↓
+[Power BI / Excel KPI Dashboard]
 ```
 
 ---
 
-## Quick Start
+## ✨ Key Features
 
-### 1. Setup the database
-Open SQL Server Management Studio and run:
+- **Controlled Data Entry** — Web UI with strict validation (dropdowns, required fields, type checks)
+- **ETL Pipeline** — Automated data cleaning, transformation, and loading via SQL stored procedures
+- **Audit Trail** — Every submission is timestamped and logged (ALCOA+ compliant)
+- **KPI Calculations** — OEE, Yield %, Defect Rate, Downtime % — auto-calculated
+- **Delay Tracking** — Linked to `Dim_DelayType` with code, group, and category
+- **Time Exceptions** — Overtime, Night Shift differential, and Overlap tracking
+- **Role-Based Access** — Operator / Analyst / Manager / Executive roles
+
+---
+
+## 🗂️ Project Structure
+
 ```
-backend/config/schema.sql
+JOSWE/
+├── backend/
+│   ├── config/          # Database connection
+│   ├── controllers/     # API logic (production, dashboard, audit)
+│   ├── middleware/       # Auth, roles, validation, error handling
+│   ├── routes/          # Express routes
+│   ├── services/        # Audit service
+│   ├── utils/           # Logger, response helpers
+│   └── server.js        # Entry point
+├── JOSWE_Production_Line-UI-Front.html   # Main frontend
+├── Dashboard.html
+├── Activity Log.html
+├── Delay & Notes.html
+├── Summary.html
+└── README.md
 ```
 
-### 2. Configure environment
+---
+
+## ⚙️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | HTML5, Tailwind CSS, Vanilla JS |
+| Backend | Node.js, Express.js |
+| Database | Microsoft SQL Server |
+| ETL | T-SQL Stored Procedures |
+| Auth | JWT (role-based) |
+| BI | Power BI / Excel Dashboards |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js v18+
+- Microsoft SQL Server (with `NEW_Production` database)
+- npm
+
+### Installation
+
 ```bash
-cd backend
-cp .env.example .env
-# Edit .env with your SQL Server IP, password, and JWT secret
-```
+# 1. Clone the repository
+git clone https://github.com/laiilla01/BPAP.git
+cd BPAP
 
-### 3. Install and run
-```bash
+# 2. Install dependencies
 cd backend
 npm install
-node utils/seedAdmin.js    # creates admin user (run once)
-npm run dev                # starts API on http://localhost:5000
+
+# 3. Configure environment
+cp .env.example .env
+# Edit .env with your DB credentials and settings
+
+# 4. Start the server
+node server.js
 ```
 
-### 4. Open the frontend
-Open `JOSWE_Production_Line-UI-Front.html` in your browser.
-The HTML pages call the backend at `http://localhost:5000/api`.
+### Environment Variables (`.env`)
+
+```env
+PORT=5000
+DB_SERVER=localhost
+DB_NAME=NEW_Production
+DB_USER=sa
+DB_PASSWORD=your_password
+JWT_SECRET=your_secret
+ALLOWED_ORIGINS=http://localhost:5500
+```
+
+### Running the Frontend
+
+Open `JOSWE_Production_Line-UI-Front.html` in your browser (use Live Server or any local server on port 5500).
 
 ---
 
-## Default Login
-| Field | Value |
-|-------|-------|
-| Username | admin |
-| Password | Admin@2025 |
-| Role | Analyst |
+## 📡 API Endpoints
 
-⚠️ Change the password after first login.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/production` | Submit new batch record |
+| `GET` | `/api/production` | List production records |
+| `GET` | `/api/production/:id` | Get record by ID |
+| `PUT` | `/api/production/:id` | Update record |
+| `DELETE` | `/api/production/:id` | Soft-delete record |
+| `GET` | `/api/production/products` | Get product list |
+| `GET` | `/api/production/delays` | Get delay types |
+| `GET` | `/api/production/machines` | Get machine list |
+| `GET` | `/api/production/markets` | Get market list |
+| `GET` | `/api/dashboard/summary` | Dashboard KPI summary |
+| `GET` | `/health` | Server health check |
 
 ---
 
-## API Base URL
+## 🗄️ Database — ETL Flow
+
 ```
-http://localhost:5000/api
+etl.Stg_BlisteringTimeSheet   ← Raw staging (from UI)
+        ↓
+etl.usp_Validate_Blistering   ← Validation stored procedure
+        ↓
+etl.usp_Load_Blistering       ← Load to fact table
+        ↓
+blistering.Fact_Production    ← Clean fact data
+        ↓
+shared.Production_Summary     ← Reporting view
 ```
 
-See `backend/SETUP.md` for the full API route table and role permissions.
+---
+
+## 📊 KPIs Tracked
+
+- **Production Efficiency** = Actual Output ÷ Planned Output
+- **Defect Rate** = Rejected Units ÷ Total Units
+- **OEE** = Availability × Performance × Quality
+- **Downtime %** = Downtime Minutes ÷ Scheduled Time
+- **Yield %** = Actual Qty ÷ Planned Qty × 100
+
+---
+
+## 📄 License
+
+This project was developed as a graduation project at Yarmouk University in cooperation with JOSWE Pharmaceutical Company. All rights reserved © 2026.
