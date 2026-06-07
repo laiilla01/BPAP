@@ -1,11 +1,3 @@
-/**
- * ================================================================
- * BPAP - Blistering Production Analytics Platform
- * Backend Server Entry Point
- * JOSWE Pharmaceutical Company
- * ================================================================
- */
-
 require('dotenv').config();
 require('express-async-errors'); // Catch async errors without try/catch
 

@@ -58,36 +58,46 @@
     </script>
     <style>
         body { background-color: #f8f9ff; font-family: 'IBM Plex Sans', sans-serif; color: #0b1c30; }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block; vertical-align: middle;
-        }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; display: inline-block; vertical-align: middle; }
         .page-content { display: none; }
         .page-content.active { display: block; }
         .nav-item.active { background-color: #86effe; color: #006d78; border-left: 4px solid #006875; }
         .nav-item { transition: all 0.15s ease; }
         .nav-item:not(.active):hover { transform: translateX(4px); }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(8px);
-            border: 1px solid #e2e8f0;
-        }
-        .glass-card:hover {
-            transform: translateY(-2px);
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-        }
+        .glass-card { background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border: 1px solid #e2e8f0; }
+        .glass-card:hover { transform: translateY(-2px); transition: all 0.3s ease; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #bcc9cb; border-radius: 10px; }
-        /* Decorative blobs */
         .blob-1 { position: fixed; bottom: 0; left: 0; width: 256px; height: 256px; background: #006875; opacity: 0.03; border-radius: 50%; filter: blur(48px); pointer-events: none; z-index: 0; }
         .blob-2 { position: fixed; top: 0; right: 0; width: 384px; height: 384px; background: #006876; opacity: 0.02; border-radius: 50%; filter: blur(48px); pointer-events: none; z-index: 0; }
-        /* Sidebar mobile */
         #mobile-sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
         #mobile-sidebar.open { transform: translateX(0); }
         #sidebar-overlay { display: none; }
         #sidebar-overlay.open { display: block; }
+
+        /* ── Searchable Product Dropdown ── */
+        .product-search-wrapper { position: relative; }
+        .product-dropdown {
+            position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+            background: #fff; border: 1px solid #bcc9cb; border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            max-height: 220px; overflow-y: auto; z-index: 200; display: none;
+        }
+        .product-dropdown.open { display: block; }
+        .product-dropdown-item {
+            padding: 10px 14px; cursor: pointer; font-size: 14px; line-height: 20px;
+            border-bottom: 1px solid #eff4ff; transition: background 0.12s;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .product-dropdown-item:last-child { border-bottom: none; }
+        .product-dropdown-item:hover { background: #e5eeff; color: #006875; }
+        .product-dropdown-item .pcode { font-size: 11px; color: #6d797c; font-family: monospace; background: #f0f4ff; padding: 1px 6px; border-radius: 4px; }
+        .product-dropdown-empty { padding: 12px 14px; color: #6d797c; font-size: 13px; text-align: center; }
+
+        /* ── Logo fallback ── */
+        .logo-text { font-family: 'Be Vietnam Pro', sans-serif; font-weight: 900; font-size: 22px; color: #006875; letter-spacing: -0.5px; }
+        .logo-sub { font-size: 10px; color: #6d797c; letter-spacing: 0.08em; font-weight: 500; display: block; margin-top: -2px; }
     </style>
 </head>
 <body class="bg-background text-on-surface overflow-x-hidden min-h-screen">
@@ -98,82 +108,54 @@
 <!-- ======== DESKTOP SIDEBAR ======== -->
 <aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[260px] bg-surface-container-low border-r border-outline-variant z-50 flex-col py-stack-lg">
     <div class="px-gutter mb-stack-lg">
-        <img alt="Health For Life Logo" class="h-10 w-auto object-contain mb-2"
-             src="https://lh3.googleusercontent.com/aida/ADBb0uh702pjKtrgJB1Sgoy5mE_Jb0W-JjqABxypZSFs3QIMdRgpyvJ7dIBRd6sNoLOQLi2pr-CKyISxTraYaiBegzSCmFeAI4spS0vv4MGVDO0yoHT9ycnYgTvqQcgS5M9T83lN-p_5RS6NkezGV3zpYMfUSzemLmIFJhwmfMySju-n3UDJh2GxpGtDedgecmMejkxN4r1Cpt3lXizWUAkkERw13nYPS-p83LJhhjfhkhotaNeYGOjSqAkUnbOe_toS08xxRKqg6u35EQ">
+        <div class="h-10 flex items-center">
+            <img alt="JOSWE Medical" class="h-10 w-auto object-contain" id="logo-img-desk"
+                 src="https://lh3.googleusercontent.com/aida/ADBb0uh702pjKtrgJB1Sgoy5mE_Jb0W-JjqABxypZSFs3QIMdRgpyvJ7dIBRd6sNoLOQLi2pr-CKyISxTraYaiBegzSCmFeAI4spS0vv4MGVDO0yoHT9ycnYgTvqQcgS5M9T83lN-p_5RS6NkezGV3zpYMfUSzemLmIFJhwmfMySju-n3UDJh2GxpGtDedgecmMejkxN4r1Cpt3lXizWUAkkERw13nYPS-p83LJhhjfhkhotaNeYGOjSqAkUnbOe_toS08xxRKqg6u35EQ"
+                 onerror="this.style.display='none';document.getElementById('logo-txt-desk').style.display='flex';">
+            <div id="logo-txt-desk" style="display:none;" class="flex flex-col">
+                <span class="logo-text">JOSWE</span>
+                <span class="logo-sub">MEDICAL · PRODUCTION</span>
+            </div>
+        </div>
     </div>
     <nav class="flex-1 space-y-1">
-        <a id="link-dashboard" href="javascript:void(0)" onclick="showPage('dashboard')"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined">dashboard</span>
-            <span class="font-label-bold text-label-bold">Dashboard</span>
-        </a>
-        <a id="link-session" href="javascript:void(0)" onclick="showPage('session')"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined">info</span>
-            <span class="font-label-bold text-label-bold">Session Info</span>
-        </a>
-        <a id="link-activity" href="javascript:void(0)" onclick="showPage('activity')"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined">history</span>
-            <span class="font-label-bold text-label-bold">Activity Log</span>
-        </a>
-        <a id="link-delays" href="javascript:void(0)" onclick="showPage('delays')"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined">timer_off</span>
-            <span class="font-label-bold text-label-bold">Delays &amp; Notes</span>
-        </a>
-        <a id="link-summary" href="javascript:void(0)" onclick="showPage('summary')"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">assignment_turned_in</span>
-            <span class="font-label-bold text-label-bold">Review</span>
-        </a>
+        <a id="link-dashboard" href="javascript:void(0)" onclick="showPage('dashboard')" class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined">dashboard</span><span class="font-label-bold text-label-bold">Dashboard</span></a>
+        <a id="link-session"   href="javascript:void(0)" onclick="showPage('session')"   class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined">info</span><span class="font-label-bold text-label-bold">Session Info</span></a>
+        <a id="link-activity"  href="javascript:void(0)" onclick="showPage('activity')"  class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined">history</span><span class="font-label-bold text-label-bold">Activity Log</span></a>
+        <a id="link-delays"    href="javascript:void(0)" onclick="showPage('delays')"    class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined">timer_off</span><span class="font-label-bold text-label-bold">Delays &amp; Notes</span></a>
+        <a id="link-summary"   href="javascript:void(0)" onclick="showPage('summary')"   class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">assignment_turned_in</span><span class="font-label-bold text-label-bold">Review</span></a>
     </nav>
     <div class="px-gutter mt-auto">
-        <button onclick="showPage('session')"
-                class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+        <button onclick="showPage('session')" class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
             <span class="material-symbols-outlined">add_circle</span> New Batch Entry
         </button>
     </div>
 </aside>
 
-<!-- ======== MOBILE SIDEBAR OVERLAY ======== -->
+<!-- ======== MOBILE SIDEBAR ======== -->
 <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-[55] lg:hidden" onclick="closeMobileSidebar()"></div>
 <aside id="mobile-sidebar" class="fixed left-0 top-0 h-screen w-[260px] bg-surface-container-low border-r border-outline-variant z-[60] flex flex-col py-stack-lg lg:hidden">
     <div class="px-gutter mb-stack-lg flex items-center justify-between">
-        <img alt="Health For Life Logo" class="h-10 w-auto object-contain"
-             src="https://lh3.googleusercontent.com/aida/ADBb0uh702pjKtrgJB1Sgoy5mE_Jb0W-JjqABxypZSFs3QIMdRgpyvJ7dIBRd6sNoLOQLi2pr-CKyISxTraYaiBegzSCmFeAI4spS0vv4MGVDO0yoHT9ycnYgTvqQcgS5M9T83lN-p_5RS6NkezGV3zpYMfUSzemLmIFJhwmfMySju-n3UDJh2GxpGtDedgecmMejkxN4r1Cpt3lXizWUAkkERw13nYPS-p83LJhhjfhkhotaNeYGOjSqAkUnbOe_toS08xxRKqg6u35EQ">
+        <div class="h-10 flex items-center">
+            <img alt="JOSWE Medical" class="h-10 w-auto object-contain" id="logo-img-mob"
+                 src="https://lh3.googleusercontent.com/aida/ADBb0uh702pjKtrgJB1Sgoy5mE_Jb0W-JjqABxypZSFs3QIMdRgpyvJ7dIBRd6sNoLOQLi2pr-CKyISxTraYaiBegzSCmFeAI4spS0vv4MGVDO0yoHT9ycnYgTvqQcgS5M9T83lN-p_5RS6NkezGV3zpYMfUSzemLmIFJhwmfMySju-n3UDJh2GxpGtDedgecmMejkxN4r1Cpt3lXizWUAkkERw13nYPS-p83LJhhjfhkhotaNeYGOjSqAkUnbOe_toS08xxRKqg6u35EQ"
+                 onerror="this.style.display='none';document.getElementById('logo-txt-mob').style.display='flex';">
+            <div id="logo-txt-mob" style="display:none;" class="flex flex-col">
+                <span class="logo-text">JOSWE</span>
+                <span class="logo-sub">MEDICAL · PRODUCTION</span>
+            </div>
+        </div>
         <button onclick="closeMobileSidebar()" class="material-symbols-outlined text-on-surface-variant p-1">close</button>
     </div>
     <nav class="flex-1 space-y-1">
-        <a id="mlink-dashboard" href="javascript:void(0)" onclick="showPage('dashboard'); closeMobileSidebar();"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined">dashboard</span>
-            <span class="font-label-bold text-label-bold">Dashboard</span>
-        </a>
-        <a id="mlink-session" href="javascript:void(0)" onclick="showPage('session'); closeMobileSidebar();"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined">info</span>
-            <span class="font-label-bold text-label-bold">Session Info</span>
-        </a>
-        <a id="mlink-activity" href="javascript:void(0)" onclick="showPage('activity'); closeMobileSidebar();"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined">history</span>
-            <span class="font-label-bold text-label-bold">Activity Log</span>
-        </a>
-        <a id="mlink-delays" href="javascript:void(0)" onclick="showPage('delays'); closeMobileSidebar();"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined">timer_off</span>
-            <span class="font-label-bold text-label-bold">Delays &amp; Notes</span>
-        </a>
-        <a id="mlink-summary" href="javascript:void(0)" onclick="showPage('summary'); closeMobileSidebar();"
-           class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3">
-            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">assignment_turned_in</span>
-            <span class="font-label-bold text-label-bold">Review</span>
-        </a>
+        <a id="mlink-dashboard" href="javascript:void(0)" onclick="showPage('dashboard');closeMobileSidebar();" class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined">dashboard</span><span class="font-label-bold text-label-bold">Dashboard</span></a>
+        <a id="mlink-session"   href="javascript:void(0)" onclick="showPage('session');closeMobileSidebar();"   class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined">info</span><span class="font-label-bold text-label-bold">Session Info</span></a>
+        <a id="mlink-activity"  href="javascript:void(0)" onclick="showPage('activity');closeMobileSidebar();"  class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined">history</span><span class="font-label-bold text-label-bold">Activity Log</span></a>
+        <a id="mlink-delays"    href="javascript:void(0)" onclick="showPage('delays');closeMobileSidebar();"    class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined">timer_off</span><span class="font-label-bold text-label-bold">Delays &amp; Notes</span></a>
+        <a id="mlink-summary"   href="javascript:void(0)" onclick="showPage('summary');closeMobileSidebar();"   class="nav-item flex items-center gap-stack-md text-on-surface-variant hover:bg-surface-container-highest px-6 py-3"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">assignment_turned_in</span><span class="font-label-bold text-label-bold">Review</span></a>
     </nav>
     <div class="px-gutter mt-auto">
-        <button onclick="showPage('session'); closeMobileSidebar();"
-                class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+        <button onclick="showPage('session');closeMobileSidebar();" class="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
             <span class="material-symbols-outlined">add_circle</span> New Batch Entry
         </button>
     </div>
@@ -182,247 +164,100 @@
 <!-- ======== MAIN ======== -->
 <main class="lg:ml-[260px] min-h-screen flex flex-col transition-all duration-300">
 
-    <!-- TOP BAR -->
     <header class="h-16 border-b border-outline-variant bg-surface-container-lowest flex items-center justify-between px-gutter sticky top-0 z-40">
-        <div class="w-10 h-10 lg:hidden flex items-center justify-center">
-            <!-- placeholder for balance -->
-        </div>
+        <div class="w-10 h-10 lg:hidden flex items-center justify-center"></div>
         <div class="flex items-center justify-center flex-1">
             <h2 class="font-display-md text-display-md font-bold text-primary">Production Line</h2>
         </div>
         <div class="flex items-center gap-stack-md lg:hidden">
             <button onclick="openMobileSidebar()" class="material-symbols-outlined text-primary p-2">menu</button>
         </div>
-        <!-- Empty spacer desktop -->
         <div class="hidden lg:block w-10"></div>
     </header>
 
     <!-- ==================== PAGE: DASHBOARD ==================== -->
     <div id="page-dashboard" class="page-content p-gutter w-full flex-1 max-w-none">
-        <!-- Summary Bento Grid -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter mb-stack-lg">
-            <!-- Active Batches -->
             <div class="bg-white border border-outline-variant p-stack-lg rounded-xl flex flex-col justify-between hover:shadow-md transition-shadow h-full">
                 <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-on-surface-variant font-label-bold">Total Records</p>
-                        <h3 id="stat-total-records" class="font-display-lg text-display-lg text-primary mt-2">—</h3>
-                    </div>
-                    <div class="p-3 bg-primary-container/10 rounded-lg">
-                        <span class="material-symbols-outlined text-primary text-3xl">biotech</span>
-                    </div>
+                    <div><p class="text-on-surface-variant font-label-bold">Total Records</p><h3 id="stat-total-records" class="font-display-lg text-display-lg text-primary mt-2">—</h3></div>
+                    <div class="p-3 bg-primary-container/10 rounded-lg"><span class="material-symbols-outlined text-primary text-3xl">biotech</span></div>
                 </div>
                 <div class="mt-4 flex items-center gap-1 text-secondary font-label-bold">
                     <span class="material-symbols-outlined text-sm">trending_up</span>
                     <span id="stat-efficiency">Avg efficiency loading...</span>
                 </div>
             </div>
-            <!-- Today's Productivity -->
             <div class="bg-white border border-outline-variant p-stack-lg rounded-xl flex flex-col justify-between hover:shadow-md transition-shadow h-full">
                 <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-on-surface-variant font-label-bold">Total Production</p>
-                        <h3 id="stat-total-production" class="font-display-lg text-display-lg text-primary mt-2">— <span class="text-body-lg text-on-surface-variant">units</span></h3>
-                    </div>
-                    <div class="p-3 bg-secondary-container/10 rounded-lg">
-                        <span class="material-symbols-outlined text-secondary text-3xl">rebase_edit</span>
-                    </div>
+                    <div><p class="text-on-surface-variant font-label-bold">Total Production</p><h3 id="stat-total-production" class="font-display-lg text-display-lg text-primary mt-2">— <span class="text-body-lg text-on-surface-variant">units</span></h3></div>
+                    <div class="p-3 bg-secondary-container/10 rounded-lg"><span class="material-symbols-outlined text-secondary text-3xl">rebase_edit</span></div>
                 </div>
                 <div class="mt-4">
-                    <div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
-                        <div id="stat-oee-bar" class="bg-secondary h-full" style="width: 0%"></div>
-                    </div>
+                    <div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden"><div id="stat-oee-bar" class="bg-secondary h-full" style="width:0%"></div></div>
                     <p id="stat-oee-label" class="mt-2 text-label-bold text-on-surface-variant">OEE loading...</p>
                 </div>
             </div>
-            <!-- Average Cycle Time -->
             <div class="bg-white border border-outline-variant p-stack-lg rounded-xl flex flex-col justify-between hover:shadow-md transition-shadow h-full sm:col-span-2 lg:col-span-1">
                 <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-on-surface-variant font-label-bold">Average Cycle Time</p>
-                        <h3 class="font-display-lg text-display-lg text-primary mt-2">4.5 <span class="text-body-lg text-on-surface-variant">hrs</span></h3>
-                    </div>
-                    <div class="p-3 bg-tertiary-container/10 rounded-lg">
-                        <span class="material-symbols-outlined text-tertiary text-3xl">schedule</span>
-                    </div>
+                    <div><p class="text-on-surface-variant font-label-bold">Average Cycle Time</p><h3 class="font-display-lg text-display-lg text-primary mt-2">4.5 <span class="text-body-lg text-on-surface-variant">hrs</span></h3></div>
+                    <div class="p-3 bg-tertiary-container/10 rounded-lg"><span class="material-symbols-outlined text-tertiary text-3xl">schedule</span></div>
                 </div>
                 <div class="mt-4 flex items-center gap-1 text-error font-label-bold">
-                    <span class="material-symbols-outlined text-sm">history</span>
-                    <span>-12 min improvement</span>
+                    <span class="material-symbols-outlined text-sm">history</span><span>-12 min improvement</span>
                 </div>
             </div>
         </section>
 
-        <!-- Recent Activities Table -->
         <section class="bg-white border border-outline-variant rounded-xl overflow-hidden w-full mb-stack-lg">
             <div class="p-gutter border-b border-outline-variant flex justify-between items-center bg-surface-container-low/30">
                 <h4 class="font-headline-sm text-headline-sm text-on-surface">Recent Activities</h4>
-                <button class="text-primary font-label-bold flex items-center gap-1 hover:underline">
-                    View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                </button>
+                <button class="text-primary font-label-bold flex items-center gap-1 hover:underline">View All <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
             </div>
             <div class="overflow-x-auto w-full">
                 <table class="w-full text-left border-collapse min-w-[640px]">
-                    <thead>
-                        <tr class="bg-surface-container-low text-on-surface-variant font-label-bold">
-                            <th class="p-4 border-b border-outline-variant">Batch Number</th>
-                            <th class="p-4 border-b border-outline-variant">Product</th>
-                            <th class="p-4 border-b border-outline-variant">Status</th>
-                            <th class="p-4 border-b border-outline-variant">Time</th>
-                        </tr>
-                    </thead>
+                    <thead><tr class="bg-surface-container-low text-on-surface-variant font-label-bold">
+                        <th class="p-4 border-b border-outline-variant">Batch Number</th>
+                        <th class="p-4 border-b border-outline-variant">Product</th>
+                        <th class="p-4 border-b border-outline-variant">Status</th>
+                        <th class="p-4 border-b border-outline-variant">Time</th>
+                    </tr></thead>
                     <tbody class="text-body-md" id="dashboard-table-body">
-                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
-                            <td class="p-4 font-data-mono">#BT-99281</td>
-                            <td class="p-4">Omeprazole 20 mg</td>
-                            <td class="p-4">
-                                <span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> In Progress
-                                </span>
-                            </td>
-                            <td class="p-4 text-on-surface-variant">10:45 AM</td>
-                        </tr>
-                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
-                            <td class="p-4 font-data-mono">#BT-99275</td>
-                            <td class="p-4">Paracetamol 500 mg</td>
-                            <td class="p-4">
-                                <span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span> Completed
-                                </span>
-                            </td>
-                            <td class="p-4 text-on-surface-variant">09:12 AM</td>
-                        </tr>
-                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
-                            <td class="p-4 font-data-mono">#BT-99270</td>
-                            <td class="p-4">Amaryl 4 mg</td>
-                            <td class="p-4">
-                                <span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-error"></span> Paused (Alert)
-                                </span>
-                            </td>
-                            <td class="p-4 text-on-surface-variant">08:00 AM</td>
-                        </tr>
-                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
-                            <td class="p-4 font-data-mono">#BT-99268</td>
-                            <td class="p-4">Vitamin C Effervescent</td>
-                            <td class="p-4">
-                                <span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span> Completed
-                                </span>
-                            </td>
-                            <td class="p-4 text-on-surface-variant">Yesterday</td>
-                        </tr>
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"><td class="p-4 font-data-mono">#BT-99281</td><td class="p-4">Omeprazole 20 mg</td><td class="p-4"><span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> In Progress</span></td><td class="p-4 text-on-surface-variant">10:45 AM</td></tr>
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"><td class="p-4 font-data-mono">#BT-99275</td><td class="p-4">Paracetamol 500 mg</td><td class="p-4"><span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white"></span> Completed</span></td><td class="p-4 text-on-surface-variant">09:12 AM</td></tr>
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"><td class="p-4 font-data-mono">#BT-99270</td><td class="p-4">Amaryl 4 mg</td><td class="p-4"><span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-error"></span> Paused (Alert)</span></td><td class="p-4 text-on-surface-variant">08:00 AM</td></tr>
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"><td class="p-4 font-data-mono">#BT-99268</td><td class="p-4">Vitamin C Effervescent</td><td class="p-4"><span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white"></span> Completed</span></td><td class="p-4 text-on-surface-variant">Yesterday</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Charts Row -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
-            <!-- Achieved Quantity Chart -->
             <div class="bg-white border border-outline-variant p-gutter rounded-xl w-full">
                 <h5 class="font-label-bold text-on-surface mb-6">Achieved Quantity (kg) by Unit</h5>
-                <div class="space-y-6">
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Unit B1</span><span class="text-primary">420 kg</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 84%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Unit B3</span><span class="text-primary">380 kg</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 76%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Unit B4</span><span class="text-primary">410 kg</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 82%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Unit B5</span><span class="text-primary">290 kg</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 58%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Unit B6</span><span class="text-primary">350 kg</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 70%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Unit B7</span><span class="text-primary">310 kg</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 62%"></div>
-                        </div>
-                    </div>
+                <div class="space-y-6" id="room-chart-container">
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Unit B1</span><span class="text-primary">420 kg</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:84%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Unit B3</span><span class="text-primary">380 kg</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:76%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Unit B4</span><span class="text-primary">410 kg</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:82%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Unit B5</span><span class="text-primary">290 kg</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:58%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Unit B6</span><span class="text-primary">350 kg</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:70%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Unit B7</span><span class="text-primary">310 kg</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:62%"></div></div></div>
                 </div>
             </div>
-            <!-- Top 5 Delays Chart -->
             <div class="bg-white border border-outline-variant p-gutter rounded-xl w-full flex flex-col">
                 <h5 class="font-label-bold text-on-surface mb-6">Top 5 Delays</h5>
-                <div class="space-y-6">
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Equipment Maintenance</span><span class="text-primary">45m</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 90%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Material Shortage</span><span class="text-primary">30m</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 60%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">QC Inspection</span><span class="text-primary">25m</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 50%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Changeover</span><span class="text-primary">15m</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 30%"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-label-bold mb-1">
-                            <span class="text-on-surface-variant">Technical Issue</span><span class="text-primary">10m</span>
-                        </div>
-                        <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-primary-container h-full" style="width: 20%"></div>
-                        </div>
-                    </div>
+                <div class="space-y-6" id="delay-chart-container">
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Equipment Maintenance</span><span class="text-primary">45m</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:90%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Material Shortage</span><span class="text-primary">30m</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:60%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">QC Inspection</span><span class="text-primary">25m</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:50%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Changeover</span><span class="text-primary">15m</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:30%"></div></div></div>
+                    <div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">Technical Issue</span><span class="text-primary">10m</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:20%"></div></div></div>
                 </div>
             </div>
         </section>
     </div>
 
-    <!-- ==================== PAGE: SESSION INFO (Batch Info) ==================== -->
+    <!-- ==================== PAGE: SESSION INFO ==================== -->
     <div id="page-session" class="page-content p-margin-mobile md:p-gutter">
         <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-stack-md md:p-stack-lg w-full min-h-[calc(100vh-theme(spacing.16)-theme(spacing.gutter)*2)]">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant pb-stack-md mb-stack-md gap-2">
@@ -450,26 +285,37 @@
                     </div>
                     <div class="space-y-1 sm:col-span-2 lg:col-span-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Date <span class="text-error">*</span></label>
-                        <div class="relative">
-                            <input id="f-date" required class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="date">
-                        </div>
+                        <input id="f-date" required class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="date">
                     </div>
                 </div>
-                <!-- Row 2: Product & Batch Identification -->
+
+                <!-- Row 2: Product & Batch -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                    <!-- SEARCHABLE PRODUCT NAME -->
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Product Name <span class="text-error">*</span></label>
-                        <input id="f-product" required class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Enter full product name" type="text">
+                        <div class="product-search-wrapper">
+                            <input id="f-product" required autocomplete="off"
+                                class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow"
+                                placeholder="Type to search product..."
+                                type="text"
+                                oninput="filterProducts(this.value)"
+                                onfocus="filterProducts(this.value)">
+                            <input type="hidden" id="f-product-key">
+                            <div id="product-dropdown" class="product-dropdown"></div>
+                        </div>
                     </div>
+                    <!-- Product Code (auto-filled, readonly) -->
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Product Code (Auto)</label>
                         <div class="relative">
-                            <input id="f-product-code" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright font-body-md outline-none" readonly type="text" value="FP001">
+                            <input id="f-product-code" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright font-body-md outline-none" readonly type="text" placeholder="Auto-filled on selection">
                             <span class="absolute right-3 top-3 material-symbols-outlined text-outline text-sm">lock</span>
                         </div>
                     </div>
                 </div>
-                <!-- Row 3: Environment & Market -->
+
+                <!-- Row 3: Room & Market -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Room No. <span class="text-error">*</span></label>
@@ -478,17 +324,33 @@
                             <option>B1</option><option>B3</option><option>B4</option><option>B5</option><option>B6</option><option>B7</option>
                         </select>
                     </div>
+                    <!-- MARKET FROM DB -->
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Market <span class="text-error">*</span></label>
-                        <select id="f-market" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
-                            <option>Local</option>
-                            <option>Export (Europe)</option>
-                            <option>Export (Middle East)</option>
-                            <option>Export (Africa)</option>
+                        <select id="f-market" required class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                            <option disabled selected value="">Loading markets...</option>
                         </select>
                     </div>
                 </div>
-                <!-- Batch Number -->
+<!-- Row 4: Time Exceptions -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Overtime (min)</label>
+                        <input id="f-overtime" type="number" min="0" value="0"
+                            class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Night Shift Diff (min)</label>
+                        <input id="f-nightshift" type="number" min="0" value="0"
+                            class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Overlap (min)</label>
+                        <input id="f-overlap" type="number" min="0" value="0"
+                            class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                    </div>
+                </div>
+                <!-- Batch -->
                 <div class="pt-stack-md border-t border-outline-variant">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
                         <div class="space-y-1">
@@ -505,7 +367,8 @@
                         </div>
                     </div>
                 </div>
-                <!-- Employee Names (Optional) -->
+
+                <!-- Employees -->
                 <div class="pt-stack-md border-t border-outline-variant">
                     <h3 class="text-label-bold font-label-bold text-primary mb-4 flex items-center gap-2">
                         <span class="material-symbols-outlined">groups</span> Employee Names (Optional)
@@ -518,11 +381,9 @@
                         <input id="f-emp5" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Employee 5" type="text">
                     </div>
                 </div>
-                <!-- Form Actions -->
+
                 <div class="flex flex-col sm:flex-row justify-end gap-stack-md pt-stack-lg">
-                    <button class="w-full sm:w-auto px-gutter py-3 rounded border border-outline text-on-surface-variant hover:bg-surface-container transition-colors font-label-bold text-label-bold" type="button">
-                        Cancel
-                    </button>
+                    <button class="w-full sm:w-auto px-gutter py-3 rounded border border-outline text-on-surface-variant hover:bg-surface-container transition-colors font-label-bold text-label-bold" type="button">Cancel</button>
                     <button id="session-submit-btn" class="w-full sm:w-auto px-10 py-3 rounded bg-primary text-on-primary shadow-lg hover:shadow-xl hover:opacity-90 transition-all font-label-bold text-label-bold flex items-center justify-center gap-2" type="submit">
                         <span>Activity Log</span><span class="material-symbols-outlined">arrow_forward</span>
                     </button>
@@ -534,176 +395,106 @@
     <!-- ==================== PAGE: ACTIVITY LOG ==================== -->
     <div id="page-activity" class="page-content">
         <div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm w-full">
-            <!-- Part 1: Activity Details -->
             <section class="p-gutter border-b border-outline-variant">
                 <div class="flex items-center gap-2 mb-stack-md text-primary">
                     <span class="material-symbols-outlined">pending_actions</span>
                     <h3 class="font-headline-sm text-headline-sm">Part One: Activity Details</h3>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
-                    <!-- Process Code -->
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Process Code <span class="text-error">*</span></label>
                         <select id="a-process" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
                             <option>Select Process...</option>
-                            <option>Adjustment</option>
-                            <option>Blistering</option>
-                            <option>Cleaning</option>
-                            <option>Line Clearence</option>
-                            <option>Delay</option>
-                            <option>Discharging,Weighing &amp; Finalizing</option>
-                            <option>Sorting</option>
-                            <option>DE-Blister</option>
-                            <option>Break</option>
-                            <option>P.Maintenance</option>
-                            <option>Polisher</option>
+                            <option>Adjustment</option><option>Blistering</option><option>Cleaning</option><option>Line Clearence</option>
+                            <option>Delay</option><option>Discharging,Weighing &amp; Finalizing</option><option>Sorting</option>
+                            <option>DE-Blister</option><option>Break</option><option>P.Maintenance</option><option>Polisher</option>
                         </select>
                     </div>
-                    <!-- Activity -->
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Activity</label>
                         <select id="a-activity" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
                             <option>Select Activity...</option>
-                            <option>F.C</option>
-                            <option>P.C</option>
-                            <option>Disassembly &amp; Reassembly</option>
-                            <option>Tablet</option>
-                            <option>Blister</option>
-                            <option>Waiting for Package</option>
-                            <option>Weighing</option>
-                            <option>Waiting Q.A Department</option>
-                            <option>Stop Packaging</option>
-                            <option>Heater Calibration</option>
-                            <option>Capsules</option>
-                            <option>Calibration</option>
-                            <option>Camera Calibration</option>
+                            <option>F.C</option><option>P.C</option><option>Disassembly &amp; Reassembly</option><option>Tablet</option>
+                            <option>Blister</option><option>Waiting for Package</option><option>Weighing</option>
+                            <option>Waiting Q.A Department</option><option>Stop Packaging</option><option>Heater Calibration</option>
+                            <option>Capsules</option><option>Calibration</option><option>Camera Calibration</option>
                         </select>
                     </div>
-                    <!-- Speed-Cat -->
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Speed-Cat / Machine</label>
-                        <input id="a-speedcat" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Enter Speed Category" type="text">
+                        <select id="a-speedcat" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                        <option value="">Select Machine...</option>
+                    </select>
                     </div>
-                    <!-- Feeder -->
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-2">Feeder</label>
                         <div class="flex gap-6 h-full items-center">
-                            <label class="flex items-center gap-2 cursor-pointer group">
-                                <input id="a-feeder-manual" value="manual" class="text-primary focus:ring-primary h-5 w-5 cursor-pointer" name="feeder" type="radio">
-                                <span class="font-body-md group-hover:text-primary transition-colors">Manual</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer group">
-                                <input id="a-feeder-auto" value="auto" checked class="text-primary focus:ring-primary h-5 w-5 cursor-pointer" name="feeder" type="radio">
-                                <span class="font-body-md group-hover:text-primary transition-colors">Automatic</span>
-                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer group"><input id="a-feeder-manual" value="manual" class="text-primary focus:ring-primary h-5 w-5 cursor-pointer" name="feeder" type="radio"><span class="font-body-md group-hover:text-primary transition-colors">Manual</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer group"><input id="a-feeder-auto" value="auto" checked class="text-primary focus:ring-primary h-5 w-5 cursor-pointer" name="feeder" type="radio"><span class="font-body-md group-hover:text-primary transition-colors">Automatic</span></label>
                         </div>
                     </div>
-                    <!-- Start Time -->
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Start Time</label>
                         <input id="a-start" onchange="calcDuration()" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="time">
                     </div>
-                    <!-- End Time -->
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">End Time</label>
                         <input id="a-end" onchange="calcDuration()" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="time">
                     </div>
                 </div>
-                <!-- Auto-calculated fields -->
                 <div class="mt-gutter grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-stack-md p-stack-md bg-surface-container-low rounded-xl">
                     <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-1">
-                            <span class="material-symbols-outlined text-label-sm">lock</span>
-                            <label class="font-label-bold text-label-bold text-on-surface-variant">Duration</label>
-                        </div>
+                        <div class="flex items-center gap-1"><span class="material-symbols-outlined text-label-sm">lock</span><label class="font-label-bold text-label-bold text-on-surface-variant">Duration</label></div>
                         <div id="a-duration" class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant">Overlap</label>
-                        <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono text-error">—</div>
+                        <div id="act-overlap" class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono text-error">—</div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant">Overtime</label>
-                        <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
+                        <div id="act-overtime" class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant">Night Shift</label>
-                        <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
+                        <div id="act-nightshift" class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono">00:00:00</div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant">Achieved (Y/N)</label>
                         <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono flex items-center justify-center overflow-hidden">
                             <select class="bg-transparent border-none p-0 m-0 text-green-800 font-bold text-xs uppercase focus:ring-0 cursor-pointer w-full text-center appearance-none">
-                                <option selected value="Y">Yes (Y)</option>
-                                <option value="N">No (N)</option>
+                                <option selected value="Y">Yes (Y)</option><option value="N">No (N)</option>
                             </select>
                         </div>
                     </div>
                 </div>
             </section>
-            <!-- Part 2: Quantities & Results -->
+
             <section class="p-gutter">
                 <div class="flex items-center gap-2 mb-stack-md text-primary">
                     <span class="material-symbols-outlined">analytics</span>
                     <h3 class="font-headline-sm text-headline-sm">Part Two: Quantities &amp; Results</h3>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-                    <div class="flex flex-col">
-                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Planned Qty (units)</label>
-                        <input id="a-planned" onchange="calcYield()" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="1" type="number" placeholder="e.g. 150000">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Actual Qty (units)</label>
-                        <input id="a-actual" onchange="calcYield()" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="1" type="number" placeholder="e.g. 148500">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Rejected Qty (units)</label>
-                        <input id="a-rejected" onchange="calcYield()" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="1" type="number" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Quantity Blister <span class="text-label-sm opacity-60 font-normal">(Optional)</span></label>
-                        <input id="a-blister" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="--" type="number">
-                    </div>
+                    <div class="flex flex-col"><label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Planned Qty (units)</label><input id="a-planned" onchange="calcYield()" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="1" type="number" placeholder="e.g. 150000"></div>
+                    <div class="flex flex-col"><label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Actual Qty (units)</label><input id="a-actual" onchange="calcYield()" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="1" type="number" placeholder="e.g. 148500"></div>
+                    <div class="flex flex-col"><label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Rejected Qty (units)</label><input id="a-rejected" onchange="calcYield()" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" step="1" type="number" placeholder="0"></div>
+                    <div class="flex flex-col"><label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Quantity Blister <span class="text-label-sm opacity-60 font-normal">(Optional)</span></label><input id="a-blister" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="--" type="number"></div>
                 </div>
-                <!-- Auto Calculations -->
                 <div class="mt-gutter bg-surface-container rounded-xl p-gutter border-l-4 border-tertiary">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-                        <div class="flex flex-col justify-center">
-                            <span class="font-label-bold text-label-bold text-on-surface-variant">Rejected Units</span>
-                            <div class="flex items-baseline gap-2">
-                                <span id="calc-rejected" class="text-display-md font-bold text-tertiary">—</span>
-                                <span class="text-label-sm text-on-surface-variant">units</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <span class="font-label-bold text-label-bold text-on-surface-variant">Waste (units)</span>
-                            <div class="flex items-baseline gap-2">
-                                <span id="calc-waste" class="text-display-md font-bold text-error">—</span>
-                                <span class="text-label-sm text-on-surface-variant">units</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <span class="font-label-bold text-label-bold text-on-surface-variant">Yield %</span>
-                                <span id="calc-yield" class="text-display-md font-bold text-primary">—</span>
-                            </div>
-                            <div class="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
-                                <div id="calc-yield-bar" class="bg-primary h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-                            </div>
-                        </div>
+                        <div class="flex flex-col justify-center"><span class="font-label-bold text-label-bold text-on-surface-variant">Rejected Units</span><div class="flex items-baseline gap-2"><span id="calc-rejected" class="text-display-md font-bold text-tertiary">—</span><span class="text-label-sm text-on-surface-variant">units</span></div></div>
+                        <div class="flex flex-col justify-center"><span class="font-label-bold text-label-bold text-on-surface-variant">Waste (units)</span><div class="flex items-baseline gap-2"><span id="calc-waste" class="text-display-md font-bold text-error">—</span><span class="text-label-sm text-on-surface-variant">units</span></div></div>
+                        <div class="flex flex-col justify-center"><div class="flex justify-between items-baseline mb-1"><span class="font-label-bold text-label-bold text-on-surface-variant">Yield %</span><span id="calc-yield" class="text-display-md font-bold text-primary">—</span></div><div class="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden"><div id="calc-yield-bar" class="bg-primary h-full rounded-full transition-all duration-500" style="width:0%"></div></div></div>
                     </div>
                 </div>
             </section>
-            <!-- Action Bar -->
+
             <div class="bg-surface-container-low p-gutter flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-outline-variant">
-                <button onclick="showPage('session')" class="w-full sm:w-auto px-8 py-3 rounded-lg border border-outline text-on-surface font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors">
-                    <span class="material-symbols-outlined">arrow_back</span> Back
-                </button>
+                <button onclick="showPage('session')" class="w-full sm:w-auto px-8 py-3 rounded-lg border border-outline text-on-surface font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors"><span class="material-symbols-outlined">arrow_back</span> Back</button>
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <button class="w-full sm:w-auto px-8 py-3 rounded-lg border border-primary text-primary font-label-bold text-label-bold hover:bg-primary/5 transition-colors">Cancel</button>
-                    <button onclick="showPage('delays')" class="w-full sm:w-auto px-10 py-3 rounded-lg bg-primary text-on-primary font-label-bold text-label-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                        Delays &amp; Notes <span class="material-symbols-outlined">arrow_forward</span>
-                    </button>
+                    <button onclick="showPage('delays')" class="w-full sm:w-auto px-10 py-3 rounded-lg bg-primary text-on-primary font-label-bold text-label-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">Delays &amp; Notes <span class="material-symbols-outlined">arrow_forward</span></button>
                 </div>
             </div>
         </div>
@@ -712,7 +503,6 @@
     <!-- ==================== PAGE: DELAYS & NOTES ==================== -->
     <div id="page-delays" class="page-content p-margin-mobile md:p-gutter">
         <div class="max-w-[1024px] mx-auto">
-            <!-- Page Title -->
             <div class="mb-stack-md flex justify-between items-end">
                 <div>
                     <h2 class="font-display-md text-display-md font-bold text-on-surface mb-1">Record Delays &amp; Notes</h2>
@@ -720,15 +510,12 @@
                 </div>
                 <div class="bg-surface-container-high px-4 py-2 rounded-lg flex items-center gap-3">
                     <span class="material-symbols-outlined text-primary">pending_actions</span>
-                    <div>
-                        <p class="font-label-sm text-label-sm text-on-surface-variant">Batch Status</p>
-                        <p class="font-label-bold text-label-bold text-primary">In Final Review</p>
-                    </div>
+                    <div><p class="font-label-sm text-label-sm text-on-surface-variant">Batch Status</p><p class="font-label-bold text-label-bold text-primary">In Final Review</p></div>
                 </div>
             </div>
-            <!-- Form Grid -->
+
             <div class="grid grid-cols-12 gap-gutter">
-                <!-- Auto-generated Data (Left) -->
+                <!-- Auto-generated (filled from delay selection) -->
                 <div class="col-span-12 lg:col-span-4 space-y-gutter">
                     <div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant border-dashed">
                         <h3 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -738,34 +525,38 @@
                             <div>
                                 <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Delay Code</label>
                                 <div class="flex items-center justify-between bg-surface-container-highest/50 px-3 py-2 rounded-lg border border-outline-variant">
-                                    <span class="font-data-mono text-data-mono">NA-001</span>
+                                    <span id="auto-delay-code" class="font-data-mono text-data-mono">—</span>
                                     <span class="material-symbols-outlined text-on-surface-variant text-sm">lock</span>
                                 </div>
                             </div>
                             <div>
                                 <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Delay Group</label>
                                 <div class="flex items-center justify-between bg-surface-container-highest/50 px-3 py-2 rounded-lg border border-outline-variant">
-                                    <span class="font-data-mono text-data-mono">Not Specified</span>
+                                    <span id="auto-delay-group" class="font-data-mono text-data-mono">—</span>
                                     <span class="material-symbols-outlined text-on-surface-variant text-sm">lock</span>
                                 </div>
                             </div>
                             <div>
                                 <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Delay Category</label>
                                 <div class="flex items-center justify-between bg-surface-container-highest/50 px-3 py-2 rounded-lg border border-outline-variant">
-                                    <span class="font-data-mono text-data-mono">Other</span>
+                                    <span id="auto-delay-category" class="font-data-mono text-data-mono">—</span>
                                     <span class="material-symbols-outlined text-on-surface-variant text-sm">lock</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Manual Input (Right) -->
+
+                <!-- Manual Input -->
                 <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-8 rounded-xl border border-outline-variant shadow-sm space-y-6">
                     <div class="grid grid-cols-2 gap-stack-md">
+                        <!-- DELAY DESCRIPTION FROM DB -->
                         <div class="col-span-2 md:col-span-1">
                             <label class="block font-label-bold text-label-bold text-on-surface mb-2">Delay Description</label>
-                            <select id="d-desc" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
+                            <select id="d-desc" onchange="onDelaySelect(this)"
+                                class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
                                 <option value="">No delay</option>
+                                <!-- Populated from DB via loadDowntimeCauses() -->
                             </select>
                         </div>
                         <div class="col-span-2 md:col-span-1">
@@ -782,9 +573,7 @@
                         <textarea id="d-notes" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="Any other notes regarding the process flow or quality..." rows="4"></textarea>
                     </div>
                     <div class="flex items-center justify-end gap-stack-md pt-6 border-t border-outline-variant">
-                        <button onclick="showPage('activity')" class="px-6 py-3 rounded-lg font-label-bold text-primary hover:bg-surface-container-low transition-colors">
-                            Cancel Changes
-                        </button>
+                        <button onclick="showPage('activity')" class="px-6 py-3 rounded-lg font-label-bold text-primary hover:bg-surface-container-low transition-colors">Cancel Changes</button>
                         <button id="finalizeBtn" class="px-10 py-3 rounded-lg font-label-bold bg-primary text-on-primary shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2" onclick="showPage('summary')">
                             <span class="material-symbols-outlined text-sm">task_alt</span> Final Batch Closure
                         </button>
@@ -794,12 +583,9 @@
         </div>
     </div>
 
-
-
     <!-- ==================== PAGE: SUMMARY / REVIEW ==================== -->
     <div id="page-summary" class="page-content pb-28">
         <div class="max-w-[1024px] mx-auto pt-8 px-gutter">
-            <!-- Page Header -->
             <div class="mb-10 text-center">
                 <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full mb-4">
                     <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">verified</span>
@@ -809,178 +595,79 @@
                 <p class="font-body-lg text-body-lg text-on-surface-variant">Please review all entered data meticulously before final submission to the quality control system.</p>
             </div>
 
-            <!-- Bento Grid -->
             <div class="grid grid-cols-12 gap-gutter">
-
-                <!-- Section 1: Session & Batch Info (full width) -->
                 <section class="col-span-12 glass-card rounded-xl p-8 border border-outline-variant/40 shadow-sm relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
                     <div class="flex items-center justify-between mb-8">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary">inventory</span>
-                            <h3 class="font-headline-sm text-headline-sm text-on-surface">Session &amp; Batch Identification</h3>
-                        </div>
-                        <button onclick="showPage('session')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline">
-                            <span class="material-symbols-outlined text-sm">edit</span> Edit Section
-                        </button>
+                        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">inventory</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Session &amp; Batch Identification</h3></div>
+                        <button onclick="showPage('session')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline"><span class="material-symbols-outlined text-sm">edit</span> Edit Section</button>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-12">
-                        <div>
-                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Product Name</p>
-                            <p id="s-product" class="font-body-lg text-body-lg font-bold text-on-surface">—</p>
-                        </div>
-                        <div>
-                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Product Code</p>
-                            <p id="s-product-code" class="font-data-mono text-data-mono bg-surface-container-high px-2 py-0.5 rounded inline-block text-primary">—</p>
-                        </div>
-                        <div>
-                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Shift / Day</p>
-                            <p id="s-shift-day" class="font-body-lg text-body-lg text-on-surface">—</p>
-                        </div>
-                        <div>
-                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Date</p>
-                            <p id="s-date" class="font-body-lg text-body-lg text-on-surface">—</p>
-                        </div>
-                        <div>
-                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Manufacturing Room</p>
-                            <p id="s-room" class="font-body-lg text-body-lg text-on-surface">—</p>
-                        </div>
-                        <div>
-                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Target Market</p>
-                            <p id="s-market" class="font-body-lg text-body-lg text-on-surface">—</p>
-                        </div>
-                        <div class="col-span-2">
-                            <p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Assigned Personnel</p>
-                            <div id="s-personnel" class="flex flex-wrap gap-2">
-                                <span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">—</span>
-                            </div>
-                        </div>
+                        <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Product Name</p><p id="s-product" class="font-body-lg text-body-lg font-bold text-on-surface">—</p></div>
+                        <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Product Code</p><p id="s-product-code" class="font-data-mono text-data-mono bg-surface-container-high px-2 py-0.5 rounded inline-block text-primary">—</p></div>
+                        <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Shift / Day</p><p id="s-shift-day" class="font-body-lg text-body-lg text-on-surface">—</p></div>
+                        <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Date</p><p id="s-date" class="font-body-lg text-body-lg text-on-surface">—</p></div>
+                        <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Manufacturing Room</p><p id="s-room" class="font-body-lg text-body-lg text-on-surface">—</p></div>
+                        <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Target Market</p><p id="s-market" class="font-body-lg text-body-lg text-on-surface">—</p></div>
+                        <div class="col-span-2"><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Assigned Personnel</p><div id="s-personnel" class="flex flex-wrap gap-2"><span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">—</span></div></div>
                     </div>
                 </section>
 
-                <!-- Section 2: Activity & Yield (spans 8) -->
                 <section class="col-span-12 lg:col-span-8 glass-card rounded-xl p-8 border border-outline-variant/40 shadow-sm relative">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary"></div>
                     <div class="flex items-center justify-between mb-8">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-secondary">analytics</span>
-                            <h3 class="font-headline-sm text-headline-sm text-on-surface">Activity &amp; Yield Performance</h3>
-                        </div>
-                        <button onclick="showPage('activity')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline">
-                            <span class="material-symbols-outlined text-sm">edit</span> Edit
-                        </button>
+                        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">analytics</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Activity &amp; Yield Performance</h3></div>
+                        <button onclick="showPage('activity')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline"><span class="material-symbols-outlined text-sm">edit</span> Edit</button>
                     </div>
                     <div class="overflow-hidden border border-outline-variant/30 rounded-lg">
                         <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-surface-container-low">
-                                    <th class="p-4 font-label-bold text-label-bold text-on-surface">Process / Activity</th>
-                                    <th class="p-4 font-label-bold text-label-bold text-on-surface">Machine</th>
-                                    <th class="p-4 font-label-bold text-label-bold text-on-surface">Duration</th>
-                                    <th class="p-4 font-label-bold text-label-bold text-on-surface">Feeder</th>
-                                </tr>
-                            </thead>
-                            <tbody id="s-activity-rows" class="divide-y divide-outline-variant/20">
-                                <tr>
-                                    <td class="p-4 text-on-surface-variant" colspan="4">No activity data yet.</td>
-                                </tr>
-                            </tbody>
+                            <thead><tr class="bg-surface-container-low"><th class="p-4 font-label-bold text-label-bold text-on-surface">Process / Activity</th><th class="p-4 font-label-bold text-label-bold text-on-surface">Machine</th><th class="p-4 font-label-bold text-label-bold text-on-surface">Duration</th><th class="p-4 font-label-bold text-label-bold text-on-surface">Feeder</th></tr></thead>
+                            <tbody id="s-activity-rows" class="divide-y divide-outline-variant/20"><tr><td class="p-4 text-on-surface-variant" colspan="4">No activity data yet.</td></tr></tbody>
                         </table>
                     </div>
-                    <!-- Yield Summary -->
                     <div class="grid grid-cols-2 gap-6 mt-8 p-6 bg-secondary-container/20 rounded-xl border border-secondary-container">
                         <div class="flex flex-col">
                             <span class="text-label-sm font-label-bold uppercase tracking-widest text-on-secondary-container mb-2">Planned Quantity</span>
-                            <div class="flex items-baseline gap-2">
-                                <span id="s-planned" class="text-display-md font-bold text-on-surface">—</span>
-                                <span class="text-on-surface-variant font-body-md">units</span>
-                            </div>
+                            <div class="flex items-baseline gap-2"><span id="s-planned" class="text-display-md font-bold text-on-surface">—</span><span class="text-on-surface-variant font-body-md">units</span></div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="text-right">
-                                <p class="text-label-sm font-label-sm text-on-surface-variant">Actual Qty</p>
-                                <p id="s-actual" class="font-body-lg text-body-lg font-bold">—</p>
-                            </div>
-                            <div class="text-right border-l border-outline-variant/30 pl-4">
-                                <p class="text-label-sm font-label-sm text-on-surface-variant">Rejected</p>
-                                <p id="s-rejected" class="font-body-lg text-body-lg font-bold text-error">—</p>
-                            </div>
+                            <div class="text-right"><p class="text-label-sm font-label-sm text-on-surface-variant">Actual Qty</p><p id="s-actual" class="font-body-lg text-body-lg font-bold">—</p></div>
+                            <div class="text-right border-l border-outline-variant/30 pl-4"><p class="text-label-sm font-label-sm text-on-surface-variant">Rejected</p><p id="s-rejected" class="font-body-lg text-body-lg font-bold text-error">—</p></div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Section 3: Time Exceptions (spans 4) -->
                 <section class="col-span-12 lg:col-span-4 glass-card rounded-xl p-8 border border-outline-variant/40 shadow-sm">
                     <div class="flex flex-col h-full">
-                        <div class="mb-6">
-                            <h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">schedule</span> Time Exceptions
-                            </h3>
-                        </div>
+                        <div class="mb-6"><h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2"><span class="material-symbols-outlined text-primary">schedule</span> Time Exceptions</h3></div>
                         <div class="space-y-4 flex-1">
-                            <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/20">
-                                <p class="text-label-sm font-label-bold text-primary mb-1 uppercase">Overtime</p>
-                                <p class="font-display-md text-display-md font-bold text-on-surface">45 <span class="text-body-md font-normal">min</span></p>
-                            </div>
-                            <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/20">
-                                <p class="text-label-sm font-label-bold text-primary mb-1 uppercase">Night Shift Diff.</p>
-                                <p class="font-display-md text-display-md font-bold text-on-surface">00 <span class="text-body-md font-normal">min</span></p>
-                            </div>
+                            <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/20"><p class="text-label-sm font-label-bold text-primary mb-1 uppercase">Overtime</p><p class="font-display-md text-display-md font-bold text-on-surface"><span id="s-overtime">00</span> <span class="text-body-md font-normal">min</span></p></div>
+                            <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/20"><p class="text-label-sm font-label-bold text-primary mb-1 uppercase">Night Shift Diff.</p><p class="font-display-md text-display-md font-bold text-on-surface"><span id="s-nightshift">00</span> <span class="text-body-md font-normal">min</span></p></div>
+                            <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/20"><p class="text-label-sm font-label-bold text-primary mb-1 uppercase">Overlap</p><p class="font-display-md text-display-md font-bold text-on-surface"><span id="s-overlap">00</span> <span class="text-body-md font-normal">min</span></p></div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Section 4: Delays & Notes (full width) -->
                 <section class="col-span-12 glass-card rounded-xl p-8 border border-outline-variant/40 shadow-sm relative">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-error/70"></div>
                     <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-error">warning</span>
-                            <h3 class="font-headline-sm text-headline-sm text-on-surface">Logged Delays &amp; Critical Notes</h3>
-                        </div>
-                        <button onclick="showPage('delays')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline">
-                            <span class="material-symbols-outlined text-sm">edit</span> Edit
-                        </button>
+                        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-error">warning</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Logged Delays &amp; Critical Notes</h3></div>
+                        <button onclick="showPage('delays')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline"><span class="material-symbols-outlined text-sm">edit</span> Edit</button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="p-6 bg-error-container/10 border border-error-container/30 rounded-xl">
-                            <div class="flex items-start justify-between mb-4">
-                                <div>
-                                    <span class="bg-error text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-tighter">Code: D-104</span>
-                                    <h4 class="font-body-lg text-body-lg font-bold mt-2">Mechanical Sensor Failure</h4>
-                                </div>
-                                <span class="text-label-sm font-label-bold text-on-surface-variant">Duration: 18m</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4 text-body-md mb-4">
-                                <div>
-                                    <p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Category</p>
-                                    <p>Technical Issue</p>
-                                </div>
-                                <div>
-                                    <p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Group</p>
-                                    <p>Machine Maintenance</p>
-                                </div>
-                            </div>
-                            <p class="text-body-md text-on-surface-variant bg-white/50 p-3 rounded italic border border-outline-variant/20">
-                                "The proximity sensor on the tablet discharge chute was misaligned due to vibration. Fixed by onsite maintenance engineer."
-                            </p>
-                        </div>
+                    <div id="s-delays-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="p-6 bg-surface-container/40 border border-outline-variant/30 rounded-xl text-on-surface-variant font-body-md">No delays recorded.</div>
                     </div>
                 </section>
+            </div>
+        </div>
 
-            </div><!-- end bento grid -->
-        </div><!-- end max-w container -->
-
-        <!-- Sticky Bottom Actions -->
         <div class="fixed bottom-0 right-0 left-0 lg:left-[260px] bg-surface-container-lowest/90 backdrop-blur-md border-t border-outline-variant px-gutter py-4 flex items-center justify-between z-40">
             <div class="flex items-center gap-3 text-on-surface-variant">
                 <span class="material-symbols-outlined text-[18px]">info</span>
                 <p class="text-label-sm font-label-sm">Once submitted, this batch record will be locked for editing.</p>
             </div>
             <div class="flex gap-4">
-                <button onclick="showPage('delays')" class="px-8 py-3 rounded-lg font-label-bold text-label-bold border border-primary text-primary hover:bg-primary/5 transition-all">
-                    Back to Edit
-                </button>
+                <button onclick="showPage('delays')" class="px-8 py-3 rounded-lg font-label-bold text-label-bold border border-primary text-primary hover:bg-primary/5 transition-all">Back to Edit</button>
                 <button id="submitBatchBtn" class="px-10 py-3 rounded-lg font-label-bold text-label-bold bg-primary text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2">
                     <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">check_circle</span>
                     Confirm &amp; Submit Batch
@@ -989,7 +676,8 @@
         </div>
     </div>
 </main>
-<!-- ==================== SUCCESS MODAL ==================== -->
+
+<!-- SUCCESS MODAL -->
 <div class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4" id="successModal">
     <div class="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm"></div>
     <div class="bg-surface-container-lowest rounded-2xl p-8 max-w-md w-full shadow-2xl relative z-10 flex flex-col items-center text-center">
@@ -1006,406 +694,528 @@
 </div>
 
 <script>
-    // ================================================================
-    //  BPAP API LAYER
-    // ================================================================
-    const API_BASE = 'http://localhost:5000';
-    let authToken = localStorage.getItem('bpap_token') || null;
-    let currentUser = JSON.parse(localStorage.getItem('bpap_user') || 'null');
+// ================================================================
+//  API LAYER
+// ================================================================
+// ── CONFIG ─────────────────────────────────────────────────────────
+const API_BASE = 'http://localhost:5000';  // ← بورت السيرفر
+// ───────────────────────────────────────────────────────────────────
 
-    async function apiFetch(path, options = {}) {
-        const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
-        if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-        const res = await fetch(API_BASE + path, { ...options, headers });
-        // If token expired, silently re-authenticate
-        if (res.status === 401) {
-            await silentAuth();
-            headers['Authorization'] = 'Bearer ' + authToken;
-            const retry = await fetch(API_BASE + path, { ...options, headers });
-            const retryData = await retry.json().catch(() => ({}));
-            if (!retry.ok) throw { status: retry.status, message: retryData.message || 'Request failed' };
-            return retryData;
+// Auth disabled — no users table in DB; POST route has authenticate removed
+let authToken = null;
+let currentUser = {};
+
+async function apiFetch(path, options = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    const res = await fetch(API_BASE + path, { ...options, headers });
+    if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || `API error: ${res.status}`);
+    }
+    return res.json();
+}
+
+async function silentAuth() { return false; }
+
+
+
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ================================================================
+//  NAVIGATION
+// ================================================================
+function showPage(pageId) {
+    document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    ['dashboard','session','activity','delays','summary'].forEach(id => {
+        const dl = document.getElementById('link-' + id);
+        const ml = document.getElementById('mlink-' + id);
+        if (dl) dl.classList.remove('active');
+        if (ml) ml.classList.remove('active');
+    });
+    const dl = document.getElementById('link-' + pageId);
+    const ml = document.getElementById('mlink-' + pageId);
+    if (dl) dl.classList.add('active');
+    if (ml) ml.classList.add('active');
+    if (pageId === 'summary') populateSummary();
+    if (pageId === 'activity') updateActivityTimeExceptions();
+    window.scrollTo(0, 0);
+}
+function openMobileSidebar()  { document.getElementById('mobile-sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
+function closeMobileSidebar() { document.getElementById('mobile-sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
+
+// ================================================================
+//  SEARCHABLE PRODUCT DROPDOWN
+// ================================================================
+let allProducts = [];
+
+async function loadProducts() {
+    try {
+        const res = await apiFetch('/api/production/products');
+        if (res.data && res.data.length) {
+            allProducts = res.data.map(p => ({
+                key:  String(p.ProductKey  || p.product_key  || p.id  || ''),
+                name: String(p.ProductName || p.product_name || p.name || ''),
+                code: String(p.ProductCode || p.product_code || p.code || '')
+            }));
+            return;
         }
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw { status: res.status, message: data.message || 'Request failed', data };
-        return data;
+    } catch(e) {}
+    // Static fallback — replace with real data once DB endpoint is available
+    allProducts = [
+        { key:'1',  name:'Omeprazole 20 mg',       code:'FP001' },
+        { key:'2',  name:'Paracetamol 500 mg',      code:'FP002' },
+        { key:'3',  name:'Amaryl 4 mg',             code:'FP003' },
+        { key:'4',  name:'Vitamin C Effervescent',  code:'FP004' },
+        { key:'5',  name:'Elongo 30 mg',            code:'FP005' },
+        { key:'6',  name:'Metformin 500 mg',        code:'FP006' },
+        { key:'7',  name:'Atorvastatin 10 mg',      code:'FP007' },
+        { key:'8',  name:'Amoxicillin 250 mg',      code:'FP008' },
+        { key:'9',  name:'Aspirin 100 mg',          code:'FP009' },
+        { key:'10', name:'Ibuprofen 400 mg',        code:'FP010' },
+    ];
+}
+
+function filterProducts(query) {
+    const dropdown = document.getElementById('product-dropdown');
+    const q = query.trim().toLowerCase();
+    const filtered = q.length < 2
+        ? allProducts
+        : allProducts.filter(p =>
+            p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q)
+          );
+    if (!filtered.length) {
+        dropdown.innerHTML = '<div class="product-dropdown-empty">No products found</div>';
+    } else {
+        dropdown.innerHTML = filtered.map(p =>
+            `<div class="product-dropdown-item"
+                  onclick="selectProduct('${escHtml(p.key)}','${escHtml(p.name)}','${escHtml(p.code)}')">
+                <span>${escHtml(p.name)}</span>
+                <span class="pcode">${escHtml(p.code)}</span>
+             </div>`
+        ).join('');
     }
+    dropdown.classList.add('open');
+}
 
-    // Silent auto-login — user never sees this
-    async function silentAuth() {
-        try {
-            const res = await fetch(API_BASE + '/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: 'admin', password: 'Admin@2025' })
-            });
-            const data = await res.json();
-            if (data.data?.accessToken) {
-                authToken = data.data.accessToken;
-                currentUser = data.data.user;
-                localStorage.setItem('bpap_token', authToken);
-                localStorage.setItem('bpap_user', JSON.stringify(currentUser));
-            }
-        } catch(e) { /* backend not running */ }
+function selectProduct(key, name, code) {
+    document.getElementById('f-product').value     = name;
+    document.getElementById('f-product-key').value = key;
+    document.getElementById('f-product-code').value = code;
+    document.getElementById('product-dropdown').classList.remove('open');
+}
+
+// Close product dropdown on outside click
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.product-search-wrapper')) {
+        const dd = document.getElementById('product-dropdown');
+        if (dd) dd.classList.remove('open');
     }
+});
 
-    // ================================================================
-    //  NAVIGATION
-    // ================================================================
-    function showPage(pageId) {
-        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-        document.getElementById('page-' + pageId).classList.add('active');
-
-        document.querySelectorAll('#link-dashboard,#link-session,#link-activity,#link-delays,#link-summary').forEach(i => i.classList.remove('active'));
-        const dl = document.getElementById('link-' + pageId);
-        if (dl) dl.classList.add('active');
-
-        document.querySelectorAll('#mlink-dashboard,#mlink-session,#mlink-activity,#mlink-delays,#mlink-summary').forEach(i => i.classList.remove('active'));
-        const ml = document.getElementById('mlink-' + pageId);
-        if (ml) ml.classList.add('active');
-
-        if (pageId === 'summary') populateSummary();
-        window.scrollTo(0, 0);
-    }
-
-    function openMobileSidebar() {
-        document.getElementById('mobile-sidebar').classList.add('open');
-        document.getElementById('sidebar-overlay').classList.add('open');
-    }
-    function closeMobileSidebar() {
-        document.getElementById('mobile-sidebar').classList.remove('open');
-        document.getElementById('sidebar-overlay').classList.remove('open');
-    }
-
-    // ================================================================
-    //  DASHBOARD — load live data
-    // ================================================================
-    async function loadDashboard() {
-        try {
-            const res = await apiFetch('/api/dashboard/summary');
-            const d = res.data;
-            document.getElementById('stat-total-records').textContent = (d.total_records ?? 0).toLocaleString();
-            const prod = d.total_production;
-            document.getElementById('stat-total-production').textContent = prod != null ? parseFloat(prod).toLocaleString(undefined, {maximumFractionDigits: 1}) : '—';
-            // avg_efficiency comes as 0–100 (YieldPercent) from the view
-            const yld = d.avg_efficiency != null ? parseFloat(d.avg_efficiency) : null;
-            const yldPct = yld != null ? (yld > 1 ? yld : yld * 100).toFixed(1) : null;
-            document.getElementById('stat-oee-bar').style.width = yldPct ? Math.min(yldPct, 100) + '%' : '0%';
-            document.getElementById('stat-oee-label').textContent = yldPct ? `Avg Yield: ${yldPct}%` : 'No data yet';
-            document.getElementById('stat-efficiency').textContent = yldPct ? `Avg Yield: ${yldPct}%` : 'No data yet';
-        } catch (e) {
-            document.getElementById('stat-efficiency').textContent = 'Backend not running';
-        }
-
-        // Load recent production records
-        try {
-            const res2 = await apiFetch('/api/production?limit=5&sort=FullDate&order=DESC');
-            const tbody = document.getElementById('dashboard-table-body');
-            if (res2.data && res2.data.length) {
-                tbody.innerHTML = res2.data.map(r => {
-                    const batchNo  = r.BatchNumber  || r.record_id || '—';
-                    const machine  = r.MachineCode  || r.machine   || '—';
-                    const shift    = r.ShiftCode    || r.shift_number || '—';
-                    const dateVal  = r.FullDate     || r.shift_date;
-                    const dateStr  = dateVal ? new Date(dateVal).toLocaleDateString() : '—';
-                    const status   = r.BatchStatus  || 'InProgress';
-                    const badgeCls = status === 'Completed'
-                        ? 'bg-primary-container text-on-primary-container'
-                        : status === 'Rejected' || status === 'OnHold'
-                        ? 'bg-error-container text-on-error-container'
-                        : 'bg-secondary-container text-on-secondary-container';
-                    return `<tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors group">
-                        <td class="p-4 font-data-mono">${batchNo}</td>
-                        <td class="p-4">${machine}</td>
-                        <td class="p-4">
-                            <span class="${badgeCls} px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span> ${shift}
-                            </span>
-                        </td>
-                        <td class="p-4 text-on-surface-variant">${dateStr}</td>
-                    </tr>`;
+// ================================================================
+//  MARKET DROPDOWN — from DB
+// ================================================================
+async function loadMarkets() {
+    const sel = document.getElementById('f-market');
+    try {
+        // The backend route is /api/production/products/markets (see production.js)
+        const res = await apiFetch('/api/production/products/markets');
+        if (res.data && res.data.length) {
+            sel.innerHTML = '<option disabled selected value="">Select Market</option>' +
+                res.data.map(m => {
+                    const label = String(m.Market || m.MarketType || m.market_type || m.name || m);
+                    return `<option value="${escHtml(label)}">${escHtml(label)}</option>`;
                 }).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-on-surface-variant text-center">No records yet. Submit your first batch!</td></tr>';
-            }
-        } catch(e) { /* keep static rows */ }
-
-        // Load by-room stats
-        try {
-            const today = new Date().toISOString().split('T')[0];
-            const monthAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0];
-            const res3 = await apiFetch(`/api/dashboard/stats?from=${monthAgo}&to=${today}`);
-            // production_by_room uses RoomCode + total (AchievedQty sum) from actual view
-            const rooms = res3.data?.production_by_room || [];
-            if (rooms.length) {
-                const maxTotal = Math.max(...rooms.map(r => parseFloat(r.total) || 0));
-                const roomChartContainer = document.querySelector('#page-dashboard .grid.grid-cols-1.lg\\:grid-cols-2 > div:first-child .space-y-6');
-                if (roomChartContainer) {
-                    roomChartContainer.innerHTML = rooms.map(r => {
-                        const total = parseFloat(r.total) || 0;
-                        const pct   = maxTotal ? Math.round((total / maxTotal) * 100) : 0;
-                        const name  = r.RoomName || r.RoomCode || r.room || '?';
-                        return `<div class="space-y-1">
-                            <div class="flex justify-between text-label-bold mb-1">
-                                <span class="text-on-surface-variant">${name}</span>
-                                <span class="text-primary">${total.toLocaleString(undefined,{maximumFractionDigits:1})} kg</span>
-                            </div>
-                            <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                                <div class="bg-primary-container h-full" style="width:${pct}%"></div>
-                            </div>
-                        </div>`;
-                    }).join('');
-                }
-                // downtime_by_cause uses DelayCode + occurrences
-                const delays = res3.data?.downtime_by_cause || [];
-                if (delays.length) {
-                    const maxOcc = Math.max(...delays.map(d => d.occurrences || 0));
-                    const delayChart = document.querySelector('#page-dashboard .grid.grid-cols-1.lg\\:grid-cols-2 > div:last-child .space-y-6');
-                    if (delayChart) {
-                        delayChart.innerHTML = delays.slice(0, 5).map(d => {
-                            const pct = maxOcc ? Math.round(((d.occurrences||0) / maxOcc) * 100) : 0;
-                            const label = d.DelayCategory || d.DelayCode || d.cause_name || 'Unknown';
-                            return `<div class="space-y-1">
-                                <div class="flex justify-between text-label-bold mb-1">
-                                    <span class="text-on-surface-variant">${label}</span>
-                                    <span class="text-primary">${d.occurrences} times</span>
-                                </div>
-                                <div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
-                                    <div class="bg-primary-container h-full" style="width:${pct}%"></div>
-                                </div>
-                            </div>`;
-                        }).join('');
-                    }
-                }
-            }
-        } catch(e) { /* keep static chart */ }
+            return;
+        }
+    } catch(e) {
+        console.warn('Markets DB load failed, using static fallback:', e.message);
     }
+    // Static fallback — full market list from production.js
+    const rawMarkets = ["BHR","BHR/QAT","DRMS","EGY","EGY/S.EGY","GPD DRMS/YEM","GPD/DRMS","GPD/JMOH","GPD/JMOH/S.MRT/MRT","GPD/JMOH/YEM","IRQ","IRQ/JOR","IRQ/JOR/S.JOR","IRQ/KSA","IRQ/KUR","IRQ/PRI/LBY","IRQ/SDN","JMOH","JOR","JOR/IRQ","JOR/IRQ/KUR","JOR/IRQ/OMN","JOR/KSA","JOR/KUR","JOR/KUR/LBN","JOR/KUR/OMN","JOR/KUR/S.KUR","JOR/KUR/S.KUR/YEM","JOR/KWT/QAT","JOR/LBN","JOR/LBN/KUR","JOR/LBN/OMN/KUR","JOR/LBY","JOR/LBY/KUR/SDN","JOR/LBY/S.LBY/S.JOR","JOR/MRT","JOR/OMN","JOR/OMN/KUR.S","JOR/OMN/KUR/S.KUR","JOR/OMN/S.KUR/KUR/KSA","JOR/OMN/YEM/KUR","JOR/PRI","JOR/QAT/S.QAT/S.OMN/OMN","JOR/S.JOR","JOR/S.JOR/KUR/S.KUR/QAT/S.QAT","JOR/S.JOR/LBY/KUR","JOR/S.JOR/QAT/LBN/S.QAT","JOR/S.JOR/QAT/OMN/S.OMN/S.QAT","JOR/S.JOR/S.YEM/YEM","JOR/S.JOR/SDN/S.SDN","JOR/S.LBN/LBN/S.KUR/KUR/S.JOR","JOR/S.LBY/LBY","JOR/S.OR","JOR/S.QAT/QAT","JOR/S.YEM/YEM","JOR/SDN","JOR/SOM","JOR/UAE","JOR/YEM","JOR/YEM/KUR","KSA","KSA/BHR","KSA/BHR/OMN","KSA/OMN","KSA/QAT","KSA/S.BHR","KSA/S.KSA","KSA/S.SDN/SDN","KSA/YEM","KUR","KUR/GPD/JMOH","KUR/JOR","KUR/JOR/S.JOR/S.KUR","KUR/LBM/JOR","KUR/LBN/SDN/LBN","KUR/QAT","KUR/S.KUR","KUR/S.KUR/YEM","KUR/YEM","KUR/YEM/MRT/LBY","KWT/JOR","KWT/PRI/SDN","LBN","LBN/IRQ/S.LBN","LBN/JOR","LBN/JOR/SDN/OMN","LBN/JOR/YEM","LBN/KUR","LBN/LBY","LBN/MRT/OMN","LBN/S.LBN","LBY","LBY/GPD/JMOH/S.LBY","LBY/JOR","LBY/JOR/NCDEC","LBY/MRT","LBY/PRI","LBY/S.LBY","LBY/S.LBY/JOR","LBY/S.LBY/YEM/S.YEM","LBY/SDN/S.SDN/S.LBY/JOR","MRT","MRT/JOR","MRT/LBY","NCDEG","NCDEG/JOR","NGA","OMN","OMN/IRQ","OMN/JOR","OMN/JOR/GPD/DRM","OMN/JOR/YEM","OMN/KSA","OMN/KUR","OMN/QAT","OMN/S.OMN","OMN/S.OMN/SDN","OMN/S.SDN/SDN/NCDEG","OMN/SDN","OMN/YEM","PRI","PRI/BHR","PRI/JOR","PRI/KUR","PRI/S.JOR","QAT","QAT/JOR","QAT/JOR/OMN","QAT/KUR","QAT/OMN/GPD","QAT/S.QAT/OMN","S.EGY","S.JOR","S.JOR/IRQ","S.JOR/JOR","S.JOR/LBY/PRI/S.LBY","S.JOR/PRI","S.JOR/S.KUR/S.LBY","S.JOR/S.QAT","S.KSA","S.KSA/S.JOR","S.KUR","S.KUR/KUR","S.KUR/KUR/OMN/S.OMN","S.KUR/MRT/KUR","S.LBN","S.LBN/LBN","S.LBY/KUR","S.LBY/LBN/OMN","S.LBY/LBY","S.LBY/LBY/OMN","S.MRT","S.MRT/KUR/S.KUR/MRT","S.OMN","S.OMN/PRI/SDN/OMN","S.OMN/QAT/S.BHR/OMN","S.OMN/S.BHR","S.OMN/S.KSA/OMN","S.OMN/S.KUR/S.YEM","S.OMN/S.LBY/LBY","S.QAT","S.QAT/QAT/KUR/S.LBN/LBN","S.QAT/S.LBN/LBN/QAT","S.SDN/SDN/JOR/S.JOR","S.UAE","S.UAE/UAE","S.YEM","S.YEM/YEM","SDN","SDN/IRQ","SDN/JOR/PRI","SDN/JOR/S.JOR","SDN/KUR","SDN/LBY/KUR","SDN/LBY/S.SDN/JOR/S.LBY","SDN/LBY/YEM/JOR","SDN/PRI","SDN/S.SDN","SDN/S.SDN/PRI/S.JOR","SOM","UAE","UAE/KUR","UAE/YEM","WHO","YEM","YEM/IRQ","YEM/IRQ/LBY","YEM/JOR","YEM/KUR","YEM/KUR/OMN/JOR","YEM/LBY","YEM/S.YEM","YEM/UAE"];
+    sel.innerHTML = '<option disabled selected value="">Select Market</option>' +
+        rawMarkets.map(m => `<option value="${escHtml(m)}">${escHtml(m)}</option>`).join('');
+}
 
-    // ================================================================
-    //  DOWNTIME CAUSES — populate from dbo.DelayDetails
-    // ================================================================
-    async function loadDowntimeCauses() {
-        try {
-            const res = await apiFetch('/api/audit/downtime-causes');
-            const sel = document.getElementById('d-desc');
-            if (res.data && res.data.length) {
-                sel.innerHTML = '<option value="">No delay</option>' +
-                    res.data.map(c =>
-                        `<option value="${c.cause_id}">${c.cause_name}${c.category ? ' — ' + c.category : ''}</option>`
-                    ).join('');
-            }
-        } catch(e) { /* keep default */ }
+// ================================================================
+//  DELAY DESCRIPTION — from DB, auto-fills Code/Group/Category
+// ================================================================
+async function loadDowntimeCauses() {
+    const sel = document.getElementById('d-desc');
+    try {
+        const res = await apiFetch('/api/production/delays');
+        if (res.data && res.data.length) {
+            // Deduplicate by description
+            const seen = new Set();
+            const unique = res.data.filter(d => {
+                const key = String(d.Description || d.description || '');
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+            sel.innerHTML = '<option value="">No delay</option>' +
+                unique.map(d => `
+                    <option value="${escHtml(String(d.DelayKey || d.delay_key || ''))}"
+                        data-code="${escHtml(String(d.DelayCode     || d.delay_code     || '—'))}"
+                        data-group="${escHtml(String(d.DelayGroup    || d.delay_group    || '—'))}"
+                        data-category="${escHtml(String(d.DelayCategory || d.delay_category || '—'))}">
+                        ${escHtml(String(d.Description || d.description || '—'))}
+                    </option>`).join('');
+            return;
+        }
+    } catch(e) {}
+    // Static fallback
+    sel.innerHTML = `
+        <option value="">No delay</option>
+        <option value="D101" data-code="D-101" data-group="Machine Maintenance" data-category="Technical Issue">Mechanical Sensor Failure</option>
+        <option value="D102" data-code="D-102" data-group="Supply Chain"        data-category="Material Issue">Material Shortage</option>
+        <option value="D103" data-code="D-103" data-group="Quality Control"     data-category="QC Hold">QC Inspection Hold</option>
+        <option value="D104" data-code="D-104" data-group="Operations"          data-category="Changeover">Product Changeover</option>
+        <option value="D105" data-code="D-105" data-group="Utilities"           data-category="Power Issue">Power Interruption</option>`;
+}
+
+// Called when delay description changes — auto-fills left panel
+function onDelaySelect(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    document.getElementById('auto-delay-code').textContent     = opt.dataset.code     || '—';
+    document.getElementById('auto-delay-group').textContent    = opt.dataset.group    || '—';
+    document.getElementById('auto-delay-category').textContent = opt.dataset.category || '—';
+}
+
+// ================================================================
+//  DASHBOARD — live data
+// ================================================================
+async function loadDashboard() {
+    try {
+        const res = await apiFetch('/api/dashboard/summary');
+        const d = res.data;
+        document.getElementById('stat-total-records').textContent = (d.total_records ?? 0).toLocaleString();
+        const prod = d.total_production;
+        document.getElementById('stat-total-production').innerHTML = prod != null
+            ? parseFloat(prod).toLocaleString(undefined,{maximumFractionDigits:1}) + ' <span class="text-body-lg text-on-surface-variant">units</span>'
+            : '—';
+        const yld = d.avg_efficiency != null ? parseFloat(d.avg_efficiency) : null;
+        const yldPct = yld != null ? (yld > 1 ? yld : yld * 100).toFixed(1) : null;
+        document.getElementById('stat-oee-bar').style.width = yldPct ? Math.min(yldPct, 100) + '%' : '0%';
+        document.getElementById('stat-oee-label').textContent = yldPct ? `Avg Yield: ${yldPct}%` : 'No data yet';
+        document.getElementById('stat-efficiency').textContent = yldPct ? `Avg Yield: ${yldPct}%` : 'No data yet';
+    } catch(e) { document.getElementById('stat-efficiency').textContent = 'Backend not running'; }
+
+    try {
+        const res2 = await apiFetch('/api/production?limit=5&sort=FullDate&order=DESC');
+        const tbody = document.getElementById('dashboard-table-body');
+        if (res2.data && res2.data.length) {
+            tbody.innerHTML = res2.data.map(r => {
+                const batchNo = r.BatchNumber || r.record_id || '—';
+                const machine = r.MachineCode || r.machine   || '—';
+                const shift   = r.ShiftCode   || r.shift_number || '—';
+                const dateVal = r.FullDate    || r.shift_date;
+                const dateStr = dateVal ? new Date(dateVal).toLocaleDateString() : '—';
+                const status  = r.BatchStatus || 'InProgress';
+                const badgeCls = status === 'Completed'
+                    ? 'bg-primary-container text-on-primary-container'
+                    : (status === 'Rejected' || status === 'OnHold')
+                    ? 'bg-error-container text-on-error-container'
+                    : 'bg-secondary-container text-on-secondary-container';
+                return `<tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                    <td class="p-4 font-data-mono">${escHtml(batchNo)}</td>
+                    <td class="p-4">${escHtml(machine)}</td>
+                    <td class="p-4"><span class="${badgeCls} px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>${escHtml(shift)}</span></td>
+                    <td class="p-4 text-on-surface-variant">${dateStr}</td>
+                </tr>`;
+            }).join('');
+        }
+    } catch(e) {}
+
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const monthAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0];
+        const res3 = await apiFetch(`/api/dashboard/stats?from=${monthAgo}&to=${today}`);
+        const rooms = res3.data?.production_by_room || [];
+        if (rooms.length) {
+            const maxTotal = Math.max(...rooms.map(r => parseFloat(r.total) || 0));
+            const rc = document.getElementById('room-chart-container');
+            if (rc) rc.innerHTML = rooms.map(r => {
+                const total = parseFloat(r.total) || 0;
+                const pct   = maxTotal ? Math.round((total / maxTotal) * 100) : 0;
+                const name  = r.RoomName || r.RoomCode || r.room || '?';
+                return `<div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">${escHtml(name)}</span><span class="text-primary">${total.toLocaleString(undefined,{maximumFractionDigits:1})} kg</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:${pct}%"></div></div></div>`;
+            }).join('');
+        }
+        const delays = res3.data?.downtime_by_cause || [];
+        if (delays.length) {
+            const maxOcc = Math.max(...delays.map(d => d.occurrences || 0));
+            const dc = document.getElementById('delay-chart-container');
+            if (dc) dc.innerHTML = delays.slice(0,5).map(d => {
+                const pct = maxOcc ? Math.round(((d.occurrences||0) / maxOcc) * 100) : 0;
+                const label = d.DelayCategory || d.DelayCode || d.cause_name || 'Unknown';
+                return `<div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">${escHtml(label)}</span><span class="text-primary">${d.occurrences} times</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:${pct}%"></div></div></div>`;
+            }).join('');
+        }
+    } catch(e) {}
+}
+
+// ================================================================
+//  SESSION FORM
+// ================================================================
+window.batchData = {};
+
+function handleSessionSubmit(e) {
+    e.preventDefault();
+    // Validate product was actually selected from dropdown (not just typed)
+    const productKey = document.getElementById('f-product-key').value;
+    const productInput = document.getElementById('f-product');
+    if (!productInput.value.trim()) {
+        productInput.style.borderColor = '#ba1a1a';
+        productInput.focus();
+        setTimeout(() => productInput.style.borderColor = '', 2500);
+        return;
     }
+    const btn = document.getElementById('session-submit-btn');
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> Saving...';
+    btn.disabled  = true;
 
-    // ================================================================
-    //  SESSION FORM — save to memory, proceed to Activity
-    // ================================================================
-    window.batchData = {};
+    const employees = ['f-emp1','f-emp2','f-emp3','f-emp4','f-emp5']
+        .map(id => document.getElementById(id).value.trim()).filter(Boolean);
 
-    function handleSessionSubmit(e) {
-        e.preventDefault();
-        const btn = document.getElementById('session-submit-btn');
-        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> Saving...';
-        btn.disabled = true;
+    window.batchData.session = {
+        shift_number:  document.getElementById('f-shift').value,
+        day_of_week:   document.getElementById('f-day').value,
+        shift_date:    document.getElementById('f-date').value,
+        product_name:  document.getElementById('f-product').value,
+        product_key:   productKey || document.getElementById('f-product').value,
+        product_code:  document.getElementById('f-product-code').value,
+        room:          document.getElementById('f-room').value,
+        market_type:   document.getElementById('f-market').value,
+        batch_number:  document.getElementById('f-batch').value || null,
+        batch_status:  document.getElementById('f-batch-status').value || 'InProgress',
+        operator_name:      employees.join(', ') || (currentUser?.full_name || currentUser?.username || 'Unknown'),
+        overtime_minutes:   parseInt(document.getElementById('f-overtime').value)   || 0,
+        nightshift_minutes: parseInt(document.getElementById('f-nightshift').value) || 0,
+        overlap_minutes:    parseInt(document.getElementById('f-overlap').value)    || 0,
+    };
 
-        const employees = ['f-emp1','f-emp2','f-emp3','f-emp4','f-emp5']
-            .map(id => document.getElementById(id).value.trim())
-            .filter(Boolean);
+    setTimeout(() => {
+        btn.innerHTML = '<span>Activity Log</span><span class="material-symbols-outlined">arrow_forward</span>';
+        btn.disabled  = false;
+        showPage('activity');
+    }, 400);
+}
 
-        window.batchData.session = {
-            shift_number:  document.getElementById('f-shift').value,
-            day_of_week:   document.getElementById('f-day').value,
-            shift_date:    document.getElementById('f-date').value,
-            product_name:  document.getElementById('f-product').value,
-            product_code:  document.getElementById('f-product-code').value,
-            room:          document.getElementById('f-room').value,
-            market_type:   document.getElementById('f-market').value,
-            batch_number:  document.getElementById('f-batch').value || null,
-            batch_status:  document.getElementById('f-batch-status').value || 'InProgress',
-            operator_name: employees.join(', ') || (currentUser?.full_name || currentUser?.username || 'Unknown'),
-        };
+// ================================================================
+//  ACTIVITY LOG
+// ================================================================
+function calcDuration() {
+    const s = document.getElementById('a-start').value;
+    const e = document.getElementById('a-end').value;
+    if (!s || !e) return;
+    const [sh,sm] = s.split(':').map(Number);
+    const [eh,em] = e.split(':').map(Number);
+    let mins = (eh*60+em) - (sh*60+sm);
+    if (mins < 0) mins += 24*60;
+    document.getElementById('a-duration').textContent =
+        `${Math.floor(mins/60).toString().padStart(2,'0')}:${(mins%60).toString().padStart(2,'0')}:00`;
+    window.batchData._durationMinutes = mins;
+      updateActivityTimeExceptions();
+}
 
-        setTimeout(() => {
-            btn.innerHTML = '<span>Activity Log</span><span class="material-symbols-outlined">arrow_forward</span>';
-            btn.disabled = false;
-            showPage('activity');
-        }, 400);
-    }
+function updateActivityTimeExceptions() {
+    const s = window.batchData.session || {};
+    const ot = s.overtime_minutes   || 0;
+    const ns = s.nightshift_minutes || 0;
+    const ov = s.overlap_minutes    || 0;
+    const fmt = n => String(Math.floor(n/60)).padStart(2,'0') + ':' + String(n%60).padStart(2,'0') + ':00';
 
-    // ================================================================
-    //  ACTIVITY LOG — real-time calculations
-    // ================================================================
-    function calcDuration() {
-        const s = document.getElementById('a-start').value;
-        const e = document.getElementById('a-end').value;
-        if (!s || !e) return;
-        const [sh,sm] = s.split(':').map(Number);
-        const [eh,em] = e.split(':').map(Number);
-        let mins = (eh*60+em) - (sh*60+sm);
-        if (mins < 0) mins += 24*60;
-        const hh = Math.floor(mins/60).toString().padStart(2,'0');
-        const mm = (mins%60).toString().padStart(2,'0');
-        document.getElementById('a-duration').textContent = `${hh}:${mm}:00`;
-        window.batchData._durationMinutes = mins;
-    }
+    
+    const elOv = document.getElementById('act-overlap');
+    const elOt = document.getElementById('act-overtime');
+    const elNs = document.getElementById('act-nightshift');
+    if (elOv) elOv.textContent = ov > 0 ? fmt(ov) : '—';
+    if (elOt) elOt.textContent = fmt(ot);
+    if (elNs) elNs.textContent = fmt(ns);
+}
 
-    function calcYield() {
-        const planned  = parseInt(document.getElementById('a-planned').value) || 0;
-        const actual   = parseInt(document.getElementById('a-actual').value)  || 0;
-        const rejected = parseInt(document.getElementById('a-rejected').value)|| 0;
-        const waste = planned - actual;
-        const yieldPct = planned > 0 ? ((actual / planned) * 100).toFixed(1) : 0;
 
-        document.getElementById('calc-rejected').textContent = rejected.toLocaleString();
-        document.getElementById('calc-waste').textContent    = waste > 0 ? waste.toLocaleString() : '0';
-        document.getElementById('calc-yield').textContent    = yieldPct + '%';
-        document.getElementById('calc-yield-bar').style.width = yieldPct + '%';
-    }
+function calcYield() {
+    const planned  = parseInt(document.getElementById('a-planned').value)  || 0;
+    const actual   = parseInt(document.getElementById('a-actual').value)   || 0;
+    const rejected = parseInt(document.getElementById('a-rejected').value) || 0;
+    const waste    = planned - actual;
+    const yieldPct = planned > 0 ? ((actual / planned) * 100).toFixed(1) : 0;
+    document.getElementById('calc-rejected').textContent   = rejected.toLocaleString();
+    document.getElementById('calc-waste').textContent      = waste > 0 ? waste.toLocaleString() : '0';
+    document.getElementById('calc-yield').textContent      = yieldPct + '%';
+    document.getElementById('calc-yield-bar').style.width  = yieldPct + '%';
+}
 
-    // ================================================================
-    //  SUMMARY PAGE — populate from batchData
-    // ================================================================
-    function populateSummary() {
-        const s = window.batchData.session || {};
-        const a = window.batchData.activity || {};
-        const d = window.batchData.delays   || {};
+// ================================================================
+//  SUMMARY
+// ================================================================
+function populateSummary() {
+    const s = window.batchData.session  || {};
+    const a = window.batchData.activity || {};
 
-        setText('s-product',      s.product_name || '—');
-        setText('s-product-code', s.product_code || '—');
-        setText('s-shift-day',    [s.shift_number, s.day_of_week].filter(Boolean).join(' / ') || '—');
-        setText('s-date',         s.shift_date || '—');
-        setText('s-room',         s.room || '—');
-        setText('s-market',       s.market_type || '—');
+    setText('s-product',      s.product_name || '—');
+    setText('s-product-code', s.product_code || '—');
+    setText('s-shift-day',    [s.shift_number, s.day_of_week].filter(Boolean).join(' / ') || '—');
+    setText('s-date',         s.shift_date   || '—');
+    setText('s-room',         s.room         || '—');
+    setText('s-market',       s.market_type  || '—');
 
-        // Personnel
-        const personnel = document.getElementById('s-personnel');
-        personnel.innerHTML = (s.operator_name || '—').split(',').map(n =>
-            `<span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">${n.trim()}</span>`
+    document.getElementById('s-personnel').innerHTML =
+        (s.operator_name || '—').split(',').map(n =>
+            `<span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">${escHtml(n.trim())}</span>`
         ).join('');
 
-        // Activity row
-        const tbody = document.getElementById('s-activity-rows');
-        if (a.process_type || a.activity_type) {
-            tbody.innerHTML = `<tr>
-                <td class="p-4">
-                    <p class="font-body-md font-bold">${a.process_type || '—'}</p>
-                    <p class="text-label-sm text-on-surface-variant">${a.activity_type || ''}</p>
-                </td>
-                <td class="p-4 text-body-md">${a.machine || '—'}</td>
-                <td class="p-4 text-body-md">${a.start_time || '—'} → ${a.end_time || '—'}</td>
-                <td class="p-4 text-body-md">${a.feeder_active ? 'Automatic' : 'Manual'}</td>
-            </tr>`;
-        }
-
-        // Quantities
-        setText('s-planned',  (a.planned_quantity || 0).toLocaleString());
-        setText('s-actual',   (a.actual_quantity  || 0).toLocaleString());
-        setText('s-rejected', (a.rejected_quantity|| 0).toLocaleString());
+    const tbody = document.getElementById('s-activity-rows');
+    if (a.process_type || a.activity_type) {
+        tbody.innerHTML = `<tr>
+            <td class="p-4"><p class="font-body-md font-bold">${escHtml(a.process_type||'—')}</p><p class="text-label-sm text-on-surface-variant">${escHtml(a.activity_type||'')}</p></td>
+            <td class="p-4 text-body-md">${escHtml(a.machine||'—')}</td>
+            <td class="p-4 text-body-md">${escHtml(a.start_time||'—')} → ${escHtml(a.end_time||'—')}</td>
+            <td class="p-4 text-body-md">${a.feeder_active ? 'Automatic' : 'Manual'}</td>
+        </tr>`;
     }
 
-    function setText(id, val) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = val;
-    }
+    setText('s-planned',  (a.planned_quantity  || 0).toLocaleString());
+    setText('s-actual',   (a.actual_quantity   || 0).toLocaleString());
+    setText('s-rejected', (a.rejected_quantity || 0).toLocaleString());
+    setText('s-overtime',   String(window.batchData.session?.overtime_minutes   || 0).padStart(2,'0'));
+    setText('s-nightshift', String(window.batchData.session?.nightshift_minutes || 0).padStart(2,'0'));
+    setText('s-overlap',    String(window.batchData.session?.overlap_minutes    || 0).padStart(2,'0'));
 
-    // ================================================================
-    //  SUBMIT BATCH — POST to backend
-    // ================================================================
-    document.getElementById('submitBatchBtn').addEventListener('click', async function () {
-        const btn = this;
-        const orig = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg> Processing...`;
+    // Delays summary
+    const delayDescSel = document.getElementById('d-desc');
+    const selectedOpt  = delayDescSel.options[delayDescSel.selectedIndex];
+    const delayDescVal = selectedOpt && selectedOpt.value ? selectedOpt.text : null;
+    const delayCode    = document.getElementById('auto-delay-code').textContent;
+    const delayGroup   = document.getElementById('auto-delay-group').textContent;
+    const delayCat     = document.getElementById('auto-delay-category').textContent;
+    const downtime     = document.getElementById('d-downtime').value;
+    const causeText    = document.getElementById('d-cause').value;
 
-        // Collect latest activity data
-        const startTime = document.getElementById('a-start').value;
-        const endTime   = document.getElementById('a-end').value;
-        window.batchData.activity = {
-            process_type:      document.getElementById('a-process').value || null,
-            activity_type:     document.getElementById('a-activity').value || null,
-            machine:           document.getElementById('a-speedcat').value || 'General',
-            feeder_active:     document.getElementById('a-feeder-auto').checked,
-            start_time:        startTime  || null,
-            end_time:          endTime    || null,
-            planned_quantity:  parseFloat(document.getElementById('a-planned').value)  || 1,
-            actual_quantity:   parseFloat(document.getElementById('a-actual').value)   || 0,
-            rejected_quantity: parseFloat(document.getElementById('a-rejected').value) || 0,
-            quantity_blister:  parseFloat(document.getElementById('a-blister').value)  || null,
-        };
+    document.getElementById('s-delays-container').innerHTML = delayDescVal
+        ? `<div class="p-6 bg-error-container/10 border border-error-container/30 rounded-xl">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <span class="bg-error text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-tighter">Code: ${escHtml(delayCode)}</span>
+                        <h4 class="font-body-lg text-body-lg font-bold mt-2">${escHtml(delayDescVal)}</h4>
+                    </div>
+                    <span class="text-label-sm font-label-bold text-on-surface-variant">${downtime ? 'Duration: ' + downtime + 'm' : ''}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-body-md mb-4">
+                    <div><p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Category</p><p>${escHtml(delayCat)}</p></div>
+                    <div><p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Group</p><p>${escHtml(delayGroup)}</p></div>
+                </div>
+                ${causeText ? `<p class="text-body-md text-on-surface-variant bg-white/50 p-3 rounded italic border border-outline-variant/20">${escHtml(causeText)}</p>` : ''}
+           </div>`
+        : '<div class="p-6 bg-surface-container/40 border border-outline-variant/30 rounded-xl text-on-surface-variant font-body-md">No delays recorded.</div>';
+}
 
-        // Collect delays data — downtime_cause_name = the DelayCode string value
-        const delayCode = document.getElementById('d-desc').value;
-        window.batchData.delays = {
-            downtime_cause_name: delayCode || null,
-            downtime_minutes:    parseInt(document.getElementById('d-downtime').value) || 0,
-            downtime_notes:      [document.getElementById('d-cause').value, document.getElementById('d-notes').value].filter(Boolean).join('\n') || null,
-        };
+function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
 
-        const payload = {
-            ...window.batchData.session,
-            ...window.batchData.activity,
-            ...window.batchData.delays,
-            scheduled_minutes: window.batchData._durationMinutes || 480,
-        };
+// ================================================================
+//  SUBMIT BATCH
+// ================================================================
+document.getElementById('submitBatchBtn').addEventListener('click', async function () {
+    const btn  = this;
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...`;
 
-        try {
-            const res = await apiFetch('/api/production', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-            btn.innerHTML = `<span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">cloud_done</span> Submitted!`;
-            btn.classList.replace('bg-primary', 'bg-green-600');
-            setTimeout(() => {
-                document.getElementById('successModal').classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerHTML = orig;
-                btn.classList.replace('bg-green-600', 'bg-primary');
-                // Reset form data
-                window.batchData = {};
-            }, 1000);
-        } catch (err) {
-            alert('Submission failed: ' + (err.message || 'Unknown error') + '\n\nMake sure the backend server is running on port 5000.');
+    const startTime = document.getElementById('a-start').value;
+    const endTime   = document.getElementById('a-end').value;
+    window.batchData.activity = {
+        process_type:      document.getElementById('a-process').value  || null,
+        activity_type:     document.getElementById('a-activity').value || null,
+        machine:           document.getElementById('a-speedcat').value || 'General',
+        feeder_active:     document.getElementById('a-feeder-auto').checked,
+        start_time:        startTime || null,
+        end_time:          endTime   || null,
+        planned_quantity:  parseFloat(document.getElementById('a-planned').value)  || 1,
+        actual_quantity:   parseFloat(document.getElementById('a-actual').value)   || 0,
+        rejected_quantity: parseFloat(document.getElementById('a-rejected').value) || 0,
+        quantity_blister:  parseFloat(document.getElementById('a-blister').value)  || null,
+    };
+
+    const delaySelect = document.getElementById('d-desc');
+    const delayOpt    = delaySelect.options[delaySelect.selectedIndex];
+    window.batchData.delays = {
+       downtime_cause_name: delaySelect.value || null,
+       delay_code:          delayOpt?.dataset.code     || 'N/A',
+       delay_category:      delayOpt?.dataset.category || null,
+       delay_group:         delayOpt?.dataset.group     || null,
+       downtime_minutes:    parseInt(document.getElementById('d-downtime').value) || 0,
+       downtime_notes:      [document.getElementById('d-cause').value, document.getElementById('d-notes').value].filter(Boolean).join('\n') || null,
+};
+    const payload = {
+        ...window.batchData.session,
+        ...window.batchData.activity,
+        ...window.batchData.delays,
+        scheduled_minutes: window.batchData._durationMinutes || 480,
+    };
+
+    try {
+        await apiFetch('/api/production', { method: 'POST', body: JSON.stringify(payload) });
+        btn.innerHTML = `<span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">cloud_done</span> Submitted!`;
+        btn.classList.replace('bg-primary','bg-green-600');
+        setTimeout(() => {
+            document.getElementById('successModal').classList.remove('hidden');
             btn.disabled = false;
             btn.innerHTML = orig;
-        }
-    });
-
-    // ================================================================
-    //  INIT
-    // ================================================================
-    function initApp() {
-        showPage('dashboard');
-        loadDashboard();
-        loadDowntimeCauses();
-
-        // Micro-interactions
-        document.querySelectorAll('#page-activity input, #page-activity select, #page-activity textarea').forEach(el => {
-            el.addEventListener('focus', () => {
-                const p = el.closest('.flex-col, .col-span-12');
-                if (p) { p.style.transform = 'scale(1.01)'; p.style.transition = 'transform 0.2s ease'; }
-            });
-            el.addEventListener('blur', () => {
-                const p = el.closest('.flex-col, .col-span-12');
-                if (p) { p.style.transform = 'scale(1)'; }
-            });
-        });
-
-        setInterval(() => {
-            document.querySelectorAll('.bg-secondary-container span.bg-secondary').forEach(el => {
-                el.classList.add('animate-pulse');
-                setTimeout(() => el.classList.remove('animate-pulse'), 1500);
-            });
-        }, 4000);
+            btn.classList.replace('bg-green-600','bg-primary');
+            window.batchData = {};
+        }, 1000);
+    } catch (err) {
+        alert('Submission failed: ' + (err.message || 'Unknown error') + '\n\nMake sure the backend server is running on port 5000.');
+        btn.disabled = false;
+        btn.innerHTML = orig;
     }
+});
 
-    // On load — auto-auth silently then start the app
-    window.addEventListener('DOMContentLoaded', async () => {
-        if (!authToken) await silentAuth();
-        initApp();
+// ================================================================
+//  INIT
+// ================================================================
+async function loadMachines() {
+    const sel = document.getElementById('a-speedcat');
+    try {
+        const res = await apiFetch('/api/production/machines');
+        if (res.data && res.data.length) {
+            sel.innerHTML = '<option value="">Select Machine...</option>' +
+                res.data.map(m => `<option value="${escHtml(m.MachineCode)}">${escHtml(m.MachineCode)}</option>`).join('');
+            return;
+        }
+    } catch(e) {}
+}
+async function initApp() {
+    showPage('dashboard');
+    loadDashboard();
+    await Promise.all([ loadProducts(), loadMarkets(), loadDowntimeCauses(), loadMachines() ]);
+
+    document.querySelectorAll('#page-activity input, #page-activity select, #page-activity textarea').forEach(el => {
+        el.addEventListener('focus', () => {
+            const p = el.closest('.flex-col, .col-span-12');
+            if (p) { p.style.transform = 'scale(1.01)'; p.style.transition = 'transform 0.2s ease'; }
+        });
+        el.addEventListener('blur', () => {
+            const p = el.closest('.flex-col, .col-span-12');
+            if (p) p.style.transform = 'scale(1)';
+        });
     });
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    if (!authToken) await silentAuth();
+    initApp();
+});
 </script>
 </body>
 </html>
