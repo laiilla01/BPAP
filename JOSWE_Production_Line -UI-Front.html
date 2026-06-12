@@ -91,13 +91,53 @@
             display: flex; align-items: center; justify-content: space-between;
         }
         .product-dropdown-item:last-child { border-bottom: none; }
-        .product-dropdown-item:hover { background: #e5eeff; color: #006875; }
+        .product-dropdown-item:hover, .product-dropdown-item.highlighted { background: #e5eeff; color: #006875; }
         .product-dropdown-item .pcode { font-size: 11px; color: #6d797c; font-family: monospace; background: #f0f4ff; padding: 1px 6px; border-radius: 4px; }
         .product-dropdown-empty { padding: 12px 14px; color: #6d797c; font-size: 13px; text-align: center; }
 
         /* ── Logo fallback ── */
         .logo-text { font-family: 'Be Vietnam Pro', sans-serif; font-weight: 900; font-size: 22px; color: #006875; letter-spacing: -0.5px; }
         .logo-sub { font-size: 10px; color: #6d797c; letter-spacing: 0.08em; font-weight: 500; display: block; margin-top: -2px; }
+
+        /* ── Market Checkbox Panel ── */
+        .market-checkbox-panel {
+            border: 1px solid #bcc9cb; border-radius: 8px; background: #f8f9ff;
+            max-height: 180px; overflow-y: auto; padding: 8px 4px;
+            transition: border-color 0.2s;
+        }
+        .market-checkbox-panel.error { border-color: #ba1a1a; }
+        .market-checkbox-search {
+            width: 100%; border: 1px solid #bcc9cb; border-radius: 6px;
+            padding: 8px 12px; font-size: 13px; outline: none; background: #fff;
+            margin-bottom: 6px;
+        }
+        .market-checkbox-search:focus { border-color: #006875; box-shadow: 0 0 0 2px rgba(0,104,117,0.15); }
+        .market-cb-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 5px 10px; border-radius: 4px; cursor: pointer;
+            font-size: 13px; line-height: 18px; transition: background 0.1s;
+        }
+        .market-cb-item:hover { background: #e5eeff; }
+        .market-cb-item input[type="checkbox"] { accent-color: #006875; width: 15px; height: 15px; cursor: pointer; }
+        .market-selected-tags {
+            display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; min-height: 24px;
+        }
+        .market-tag {
+            background: #86effe; color: #006d78; font-size: 11px; font-weight: 600;
+            padding: 2px 8px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .market-tag button { background: none; border: none; cursor: pointer; color: #006875; font-size: 13px; line-height: 1; padding: 0; }
+
+        /* ── Loading spinner ── */
+        .spinner {
+            display: inline-block; width: 13px; height: 13px;
+            border: 2px solid #bcc9cb; border-top-color: #006875;
+            border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Field error highlight ── */
+        .field-error { border-color: #ba1a1a !important; box-shadow: 0 0 0 2px rgba(186,26,26,0.15) !important; }
     </style>
 </head>
 <body class="bg-background text-on-surface overflow-x-hidden min-h-screen">
@@ -223,10 +263,7 @@
                         <th class="p-4 border-b border-outline-variant">Time</th>
                     </tr></thead>
                     <tbody class="text-body-md" id="dashboard-table-body">
-                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"><td class="p-4 font-data-mono">#BT-99281</td><td class="p-4">Omeprazole 20 mg</td><td class="p-4"><span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> In Progress</span></td><td class="p-4 text-on-surface-variant">10:45 AM</td></tr>
-                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"><td class="p-4 font-data-mono">#BT-99275</td><td class="p-4">Paracetamol 500 mg</td><td class="p-4"><span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white"></span> Completed</span></td><td class="p-4 text-on-surface-variant">09:12 AM</td></tr>
-                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"><td class="p-4 font-data-mono">#BT-99270</td><td class="p-4">Amaryl 4 mg</td><td class="p-4"><span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-error"></span> Paused (Alert)</span></td><td class="p-4 text-on-surface-variant">08:00 AM</td></tr>
-                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"><td class="p-4 font-data-mono">#BT-99268</td><td class="p-4">Vitamin C Effervescent</td><td class="p-4"><span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white"></span> Completed</span></td><td class="p-4 text-on-surface-variant">Yesterday</td></tr>
+                        <tr class="border-b border-outline-variant"><td class="p-4 text-on-surface-variant" colspan="4"><span class="spinner"></span> Loading recent records...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -267,8 +304,9 @@
                 <span class="text-label-sm font-label-sm text-outline">All fields marked with <span class="text-error">*</span> are required</span>
             </div>
             <form class="space-y-stack-lg" id="session-form" onsubmit="handleSessionSubmit(event)">
-                <!-- Row 1: Time Context -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-gutter">
+
+                <!-- Row 1: Shift / Day / Date -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Shift <span class="text-error">*</span></label>
                         <select id="f-shift" required class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
@@ -283,39 +321,49 @@
                             <option>Sun</option><option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option><option>Sat</option>
                         </select>
                     </div>
-                    <div class="space-y-1 sm:col-span-2 lg:col-span-1">
+                    <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Date <span class="text-error">*</span></label>
                         <input id="f-date" required class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" type="date">
                     </div>
                 </div>
 
-                <!-- Row 2: Product & Batch -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
-                    <!-- SEARCHABLE PRODUCT NAME -->
+                <!-- Row 2: Batch Number / Product Name / Product Code -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                    <!-- ★ Batch Number — REQUIRED -->
+                    <div class="space-y-1">
+                        <label class="text-label-bold font-label-bold text-on-surface-variant">Batch Number <span class="text-error">*</span></label>
+                        <input id="f-batch" required
+                            class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow"
+                            placeholder="e.g. BT-2024-001" type="text">
+                    </div>
+
+                    <!-- Product Name — searchable from DB -->
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Product Name <span class="text-error">*</span></label>
                         <div class="product-search-wrapper">
-                            <input id="f-product" required autocomplete="off"
+                            <input id="f-product" autocomplete="off"
                                 class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow"
                                 placeholder="Type to search product..."
                                 type="text"
                                 oninput="filterProducts(this.value)"
                                 onfocus="filterProducts(this.value)">
-                            <input type="hidden" id="f-product-key">
+                            <!-- hidden: stores the confirmed product name after selection -->
+                            <input type="hidden" id="f-product-confirmed">
                             <div id="product-dropdown" class="product-dropdown"></div>
                         </div>
                     </div>
+
                     <!-- Product Code (auto-filled, readonly) -->
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Product Code (Auto)</label>
                         <div class="relative">
-                            <input id="f-product-code" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright font-body-md outline-none" readonly type="text" placeholder="Auto-filled on selection">
+                            <input id="f-product-code" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright font-body-md outline-none text-outline" readonly type="text" placeholder="Auto-filled on selection">
                             <span class="absolute right-3 top-3 material-symbols-outlined text-outline text-sm">lock</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Row 3: Room & Market -->
+                <!-- Row 3: Room / Market -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Room No. <span class="text-error">*</span></label>
@@ -324,15 +372,24 @@
                             <option>B1</option><option>B3</option><option>B4</option><option>B5</option><option>B6</option><option>B7</option>
                         </select>
                     </div>
-                    <!-- MARKET FROM DB -->
+
+                    <!-- Market — multi-select checkboxes from DB -->
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Market <span class="text-error">*</span></label>
-                        <select id="f-market" required class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
-                            <option disabled selected value="">Loading markets...</option>
-                        </select>
+                        <input type="text" id="market-search" class="market-checkbox-search"
+                               placeholder="Search market..." oninput="filterMarketCheckboxes(this.value)">
+                        <div id="market-checkbox-panel" class="market-checkbox-panel">
+                            <div id="market-cb-list">
+                                <p class="text-label-sm text-on-surface-variant px-2 py-2 flex items-center gap-2">
+                                    <span class="spinner"></span> Loading markets…
+                                </p>
+                            </div>
+                        </div>
+                        <div id="market-selected-tags" class="market-selected-tags"></div>
                     </div>
                 </div>
-<!-- Row 4: Time Exceptions -->
+
+                <!-- Row 4: Time Exceptions -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
                     <div class="space-y-1">
                         <label class="text-label-bold font-label-bold text-on-surface-variant">Overtime (min)</label>
@@ -350,13 +407,10 @@
                             class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
                     </div>
                 </div>
-                <!-- Batch -->
+
+                <!-- Batch Status -->
                 <div class="pt-stack-md border-t border-outline-variant">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
-                        <div class="space-y-1">
-                            <label class="text-label-bold font-label-bold text-on-surface-variant">Batch Number</label>
-                            <input id="f-batch" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow" placeholder="e.g. BT-2024-001" type="text">
-                        </div>
                         <div class="space-y-1">
                             <label class="text-label-bold font-label-bold text-on-surface-variant">Batch Status</label>
                             <select id="f-batch-status" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
@@ -404,7 +458,7 @@
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Process Code <span class="text-error">*</span></label>
                         <select id="a-process" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
-                            <option>Select Process...</option>
+                            <option value="">Select Process...</option>
                             <option>Adjustment</option><option>Blistering</option><option>Cleaning</option><option>Line Clearence</option>
                             <option>Delay</option><option>Discharging,Weighing &amp; Finalizing</option><option>Sorting</option>
                             <option>DE-Blister</option><option>Break</option><option>P.Maintenance</option><option>Polisher</option>
@@ -413,18 +467,19 @@
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Activity</label>
                         <select id="a-activity" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
-                            <option>Select Activity...</option>
+                            <option value="">Select Activity...</option>
                             <option>F.C</option><option>P.C</option><option>Disassembly &amp; Reassembly</option><option>Tablet</option>
                             <option>Blister</option><option>Waiting for Package</option><option>Weighing</option>
                             <option>Waiting Q.A Department</option><option>Stop Packaging</option><option>Heater Calibration</option>
                             <option>Capsules</option><option>Calibration</option><option>Camera Calibration</option>
                         </select>
                     </div>
+                    <!-- Machine list — from DB -->
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Speed-Cat / Machine</label>
                         <select id="a-speedcat" class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
-                        <option value="">Select Machine...</option>
-                    </select>
+                            <option value=""><span class="spinner"></span> Loading machines…</option>
+                        </select>
                     </div>
                     <div class="flex flex-col">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant mb-2">Feeder</label>
@@ -462,7 +517,7 @@
                     <div class="flex flex-col gap-1">
                         <label class="block font-label-bold text-label-bold text-on-surface-variant">Achieved (Y/N)</label>
                         <div class="bg-surface-variant/50 p-2 rounded text-data-mono font-data-mono flex items-center justify-center overflow-hidden">
-                            <select class="bg-transparent border-none p-0 m-0 text-green-800 font-bold text-xs uppercase focus:ring-0 cursor-pointer w-full text-center appearance-none">
+                            <select id="a-achieved" class="bg-transparent border-none p-0 m-0 text-green-800 font-bold text-xs uppercase focus:ring-0 cursor-pointer w-full text-center appearance-none">
                                 <option selected value="Y">Yes (Y)</option><option value="N">No (N)</option>
                             </select>
                         </div>
@@ -550,13 +605,12 @@
                 <!-- Manual Input -->
                 <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-8 rounded-xl border border-outline-variant shadow-sm space-y-6">
                     <div class="grid grid-cols-2 gap-stack-md">
-                        <!-- DELAY DESCRIPTION FROM DB -->
+                        <!-- Delay Description — from DB -->
                         <div class="col-span-2 md:col-span-1">
                             <label class="block font-label-bold text-label-bold text-on-surface mb-2">Delay Description</label>
                             <select id="d-desc" onchange="onDelaySelect(this)"
                                 class="w-full border border-outline-variant rounded-lg p-3 bg-surface-bright focus:ring-2 focus:ring-primary font-body-md outline-none transition-shadow">
-                                <option value="">No delay</option>
-                                <!-- Populated from DB via loadDowntimeCauses() -->
+                                <option value=""><span class="spinner"></span> Loading delays…</option>
                             </select>
                         </div>
                         <div class="col-span-2 md:col-span-1">
@@ -592,7 +646,7 @@
                     <span class="font-label-bold text-label-bold">Final Verification Step</span>
                 </div>
                 <h2 class="font-display-lg text-display-lg text-on-surface mb-2">Batch Data Summary</h2>
-                <p class="font-body-lg text-body-lg text-on-surface-variant">Please review all entered data meticulously before final submission to the quality control system.</p>
+                <p class="font-body-lg text-body-lg text-on-surface-variant">Please review all entered data meticulously before final submission.</p>
             </div>
 
             <div class="grid grid-cols-12 gap-gutter">
@@ -603,13 +657,14 @@
                         <button onclick="showPage('session')" class="flex items-center gap-1 text-primary font-label-bold text-label-bold hover:underline"><span class="material-symbols-outlined text-sm">edit</span> Edit Section</button>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-12">
+                        <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Batch Number</p><p id="s-batch" class="font-data-mono text-data-mono bg-surface-container-high px-2 py-0.5 rounded inline-block text-primary">—</p></div>
                         <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Product Name</p><p id="s-product" class="font-body-lg text-body-lg font-bold text-on-surface">—</p></div>
                         <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Product Code</p><p id="s-product-code" class="font-data-mono text-data-mono bg-surface-container-high px-2 py-0.5 rounded inline-block text-primary">—</p></div>
                         <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Shift / Day</p><p id="s-shift-day" class="font-body-lg text-body-lg text-on-surface">—</p></div>
                         <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Date</p><p id="s-date" class="font-body-lg text-body-lg text-on-surface">—</p></div>
                         <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Manufacturing Room</p><p id="s-room" class="font-body-lg text-body-lg text-on-surface">—</p></div>
                         <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Target Market</p><p id="s-market" class="font-body-lg text-body-lg text-on-surface">—</p></div>
-                        <div class="col-span-2"><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Assigned Personnel</p><div id="s-personnel" class="flex flex-wrap gap-2"><span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">—</span></div></div>
+                        <div><p class="text-on-surface-variant font-label-bold text-label-bold mb-1">Assigned Personnel</p><div id="s-personnel" class="flex flex-wrap gap-2"><span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">—</span></div></div>
                     </div>
                 </section>
 
@@ -695,34 +750,35 @@
 
 <script>
 // ================================================================
-//  API LAYER
+//  CONFIG
 // ================================================================
-// ── CONFIG ─────────────────────────────────────────────────────────
-const API_BASE = 'http://localhost:5000';  // ← بورت السيرفر
-// ───────────────────────────────────────────────────────────────────
-
-// Auth disabled — no users table in DB; POST route has authenticate removed
-let authToken = null;
-let currentUser = {};
+const API_BASE = 'http://localhost:5000';
 
 async function apiFetch(path, options = {}) {
     const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
-    const res = await fetch(API_BASE + path, { ...options, headers });
-    if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || `API error: ${res.status}`);
+    const res = await fetch(API_BASE + path, { credentials: 'include', ...options, headers });
+    if (res.status === 401) {
+        await silentAuth();
+        const res2 = await fetch(API_BASE + path, { credentials: 'include', ...options, headers });
+        if (!res2.ok) { const e = await res2.json().catch(() => ({})); throw new Error(e.message || `API ${res2.status}`); }
+        return res2.json();
     }
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || `API ${res.status}`); }
     return res.json();
 }
 
-async function silentAuth() { return false; }
-
-
+async function silentAuth() {
+    try {
+        await fetch(API_BASE + '/api/auth/login', {
+            method: 'POST', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: 'admin', password: 'Admin@2025' })
+        });
+    } catch(e) { console.warn('silentAuth failed:', e); }
+}
 
 function escHtml(str) {
-    return String(str)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ================================================================
@@ -749,67 +805,67 @@ function openMobileSidebar()  { document.getElementById('mobile-sidebar').classL
 function closeMobileSidebar() { document.getElementById('mobile-sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
 // ================================================================
-//  SEARCHABLE PRODUCT DROPDOWN
+//  PRODUCT NAME — searchable dropdown from DB
+//  FIX: use ProductName as the key (no ProductKey column in DB)
 // ================================================================
 let allProducts = [];
 
 async function loadProducts() {
     try {
-        const res = await apiFetch('/api/production/products');
-        if (res.data && res.data.length) {
+        // Load full list once (no search param = all records via LIKE '%%')
+        const res = await apiFetch('/api/production/products?q=');
+        if (res.success && res.data && res.data.length) {
             allProducts = res.data.map(p => ({
-                key:  String(p.ProductKey  || p.product_key  || p.id  || ''),
-                name: String(p.ProductName || p.product_name || p.name || ''),
-                code: String(p.ProductCode || p.product_code || p.code || '')
-            }));
-            return;
+                name: String(p.ProductName || '').trim(),
+                code: String(p.ProductCode || '').trim()
+            })).filter(p => p.name);
         }
-    } catch(e) {}
-    // Static fallback — replace with real data once DB endpoint is available
-    allProducts = [
-        { key:'1',  name:'Omeprazole 20 mg',       code:'FP001' },
-        { key:'2',  name:'Paracetamol 500 mg',      code:'FP002' },
-        { key:'3',  name:'Amaryl 4 mg',             code:'FP003' },
-        { key:'4',  name:'Vitamin C Effervescent',  code:'FP004' },
-        { key:'5',  name:'Elongo 30 mg',            code:'FP005' },
-        { key:'6',  name:'Metformin 500 mg',        code:'FP006' },
-        { key:'7',  name:'Atorvastatin 10 mg',      code:'FP007' },
-        { key:'8',  name:'Amoxicillin 250 mg',      code:'FP008' },
-        { key:'9',  name:'Aspirin 100 mg',          code:'FP009' },
-        { key:'10', name:'Ibuprofen 400 mg',        code:'FP010' },
-    ];
+    } catch(e) {
+        console.warn('Products load failed:', e.message);
+        allProducts = [];
+    }
 }
 
 function filterProducts(query) {
     const dropdown = document.getElementById('product-dropdown');
-    const q = query.trim().toLowerCase();
-    const filtered = q.length < 2
-        ? allProducts
+    const q = (query || '').trim().toLowerCase();
+
+    if (!allProducts.length) {
+        dropdown.innerHTML = '<div class="product-dropdown-empty">⚠ No products loaded — check DB connection</div>';
+        dropdown.classList.add('open');
+        return;
+    }
+
+    const filtered = q.length < 1
+        ? allProducts.slice(0, 50)   // show first 50 on empty focus
         : allProducts.filter(p =>
             p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q)
           );
+
     if (!filtered.length) {
         dropdown.innerHTML = '<div class="product-dropdown-empty">No products found</div>';
     } else {
         dropdown.innerHTML = filtered.map(p =>
             `<div class="product-dropdown-item"
-                  onclick="selectProduct('${escHtml(p.key)}','${escHtml(p.name)}','${escHtml(p.code)}')">
+                  onmousedown="selectProduct('${escHtml(p.name)}','${escHtml(p.code)}')">
                 <span>${escHtml(p.name)}</span>
-                <span class="pcode">${escHtml(p.code)}</span>
+                ${p.code ? `<span class="pcode">${escHtml(p.code)}</span>` : ''}
              </div>`
         ).join('');
     }
     dropdown.classList.add('open');
 }
 
-function selectProduct(key, name, code) {
-    document.getElementById('f-product').value     = name;
-    document.getElementById('f-product-key').value = key;
-    document.getElementById('f-product-code').value = code;
+function selectProduct(name, code) {
+    document.getElementById('f-product').value          = name;
+    document.getElementById('f-product-confirmed').value = name;   // mark as selected
+    document.getElementById('f-product-code').value     = code;
     document.getElementById('product-dropdown').classList.remove('open');
+    // Clear error state
+    document.getElementById('f-product').classList.remove('field-error');
 }
 
-// Close product dropdown on outside click
+// Close dropdown when clicking outside
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.product-search-wrapper')) {
         const dd = document.getElementById('product-dropdown');
@@ -817,74 +873,133 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// If user edits the text field after selecting, clear the confirmation
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('f-product').addEventListener('input', function() {
+        document.getElementById('f-product-confirmed').value = '';
+        document.getElementById('f-product-code').value = '';
+    });
+});
+
 // ================================================================
-//  MARKET DROPDOWN — from DB
+//  MARKET — multi-select checkboxes from DB
+//  FIX: use /api/production/markets (simpler, dedicated endpoint)
 // ================================================================
+let allMarkets = [];
+let selectedMarkets = new Set();
+
 async function loadMarkets() {
-    const sel = document.getElementById('f-market');
     try {
-        // The backend route is /api/production/products/markets (see production.js)
-        const res = await apiFetch('/api/production/products/markets');
-        if (res.data && res.data.length) {
-            sel.innerHTML = '<option disabled selected value="">Select Market</option>' +
-                res.data.map(m => {
-                    const label = String(m.Market || m.MarketType || m.market_type || m.name || m);
-                    return `<option value="${escHtml(label)}">${escHtml(label)}</option>`;
-                }).join('');
+        const res = await apiFetch('/api/production/markets');
+        if (res.success && res.data && res.data.length) {
+            allMarkets = res.data.map(m => String(m.Market || '').trim()).filter(Boolean);
+            renderMarketCheckboxes(allMarkets);
             return;
         }
     } catch(e) {
-        console.warn('Markets DB load failed, using static fallback:', e.message);
+        console.warn('Markets load failed:', e.message);
     }
-    // Static fallback — full market list from production.js
-    const rawMarkets = ["BHR","BHR/QAT","DRMS","EGY","EGY/S.EGY","GPD DRMS/YEM","GPD/DRMS","GPD/JMOH","GPD/JMOH/S.MRT/MRT","GPD/JMOH/YEM","IRQ","IRQ/JOR","IRQ/JOR/S.JOR","IRQ/KSA","IRQ/KUR","IRQ/PRI/LBY","IRQ/SDN","JMOH","JOR","JOR/IRQ","JOR/IRQ/KUR","JOR/IRQ/OMN","JOR/KSA","JOR/KUR","JOR/KUR/LBN","JOR/KUR/OMN","JOR/KUR/S.KUR","JOR/KUR/S.KUR/YEM","JOR/KWT/QAT","JOR/LBN","JOR/LBN/KUR","JOR/LBN/OMN/KUR","JOR/LBY","JOR/LBY/KUR/SDN","JOR/LBY/S.LBY/S.JOR","JOR/MRT","JOR/OMN","JOR/OMN/KUR.S","JOR/OMN/KUR/S.KUR","JOR/OMN/S.KUR/KUR/KSA","JOR/OMN/YEM/KUR","JOR/PRI","JOR/QAT/S.QAT/S.OMN/OMN","JOR/S.JOR","JOR/S.JOR/KUR/S.KUR/QAT/S.QAT","JOR/S.JOR/LBY/KUR","JOR/S.JOR/QAT/LBN/S.QAT","JOR/S.JOR/QAT/OMN/S.OMN/S.QAT","JOR/S.JOR/S.YEM/YEM","JOR/S.JOR/SDN/S.SDN","JOR/S.LBN/LBN/S.KUR/KUR/S.JOR","JOR/S.LBY/LBY","JOR/S.OR","JOR/S.QAT/QAT","JOR/S.YEM/YEM","JOR/SDN","JOR/SOM","JOR/UAE","JOR/YEM","JOR/YEM/KUR","KSA","KSA/BHR","KSA/BHR/OMN","KSA/OMN","KSA/QAT","KSA/S.BHR","KSA/S.KSA","KSA/S.SDN/SDN","KSA/YEM","KUR","KUR/GPD/JMOH","KUR/JOR","KUR/JOR/S.JOR/S.KUR","KUR/LBM/JOR","KUR/LBN/SDN/LBN","KUR/QAT","KUR/S.KUR","KUR/S.KUR/YEM","KUR/YEM","KUR/YEM/MRT/LBY","KWT/JOR","KWT/PRI/SDN","LBN","LBN/IRQ/S.LBN","LBN/JOR","LBN/JOR/SDN/OMN","LBN/JOR/YEM","LBN/KUR","LBN/LBY","LBN/MRT/OMN","LBN/S.LBN","LBY","LBY/GPD/JMOH/S.LBY","LBY/JOR","LBY/JOR/NCDEC","LBY/MRT","LBY/PRI","LBY/S.LBY","LBY/S.LBY/JOR","LBY/S.LBY/YEM/S.YEM","LBY/SDN/S.SDN/S.LBY/JOR","MRT","MRT/JOR","MRT/LBY","NCDEG","NCDEG/JOR","NGA","OMN","OMN/IRQ","OMN/JOR","OMN/JOR/GPD/DRM","OMN/JOR/YEM","OMN/KSA","OMN/KUR","OMN/QAT","OMN/S.OMN","OMN/S.OMN/SDN","OMN/S.SDN/SDN/NCDEG","OMN/SDN","OMN/YEM","PRI","PRI/BHR","PRI/JOR","PRI/KUR","PRI/S.JOR","QAT","QAT/JOR","QAT/JOR/OMN","QAT/KUR","QAT/OMN/GPD","QAT/S.QAT/OMN","S.EGY","S.JOR","S.JOR/IRQ","S.JOR/JOR","S.JOR/LBY/PRI/S.LBY","S.JOR/PRI","S.JOR/S.KUR/S.LBY","S.JOR/S.QAT","S.KSA","S.KSA/S.JOR","S.KUR","S.KUR/KUR","S.KUR/KUR/OMN/S.OMN","S.KUR/MRT/KUR","S.LBN","S.LBN/LBN","S.LBY/KUR","S.LBY/LBN/OMN","S.LBY/LBY","S.LBY/LBY/OMN","S.MRT","S.MRT/KUR/S.KUR/MRT","S.OMN","S.OMN/PRI/SDN/OMN","S.OMN/QAT/S.BHR/OMN","S.OMN/S.BHR","S.OMN/S.KSA/OMN","S.OMN/S.KUR/S.YEM","S.OMN/S.LBY/LBY","S.QAT","S.QAT/QAT/KUR/S.LBN/LBN","S.QAT/S.LBN/LBN/QAT","S.SDN/SDN/JOR/S.JOR","S.UAE","S.UAE/UAE","S.YEM","S.YEM/YEM","SDN","SDN/IRQ","SDN/JOR/PRI","SDN/JOR/S.JOR","SDN/KUR","SDN/LBY/KUR","SDN/LBY/S.SDN/JOR/S.LBY","SDN/LBY/YEM/JOR","SDN/PRI","SDN/S.SDN","SDN/S.SDN/PRI/S.JOR","SOM","UAE","UAE/KUR","UAE/YEM","WHO","YEM","YEM/IRQ","YEM/IRQ/LBY","YEM/JOR","YEM/KUR","YEM/KUR/OMN/JOR","YEM/LBY","YEM/S.YEM","YEM/UAE"];
-    sel.innerHTML = '<option disabled selected value="">Select Market</option>' +
-        rawMarkets.map(m => `<option value="${escHtml(m)}">${escHtml(m)}</option>`).join('');
+    allMarkets = [];
+    document.getElementById('market-cb-list').innerHTML =
+        '<p class="text-label-sm text-error px-2 py-2">⚠ Could not load markets — check DB connection</p>';
+}
+
+function renderMarketCheckboxes(markets) {
+    const list = document.getElementById('market-cb-list');
+    if (!markets.length) {
+        list.innerHTML = '<p class="text-label-sm text-on-surface-variant px-2 py-2">No markets found</p>';
+        return;
+    }
+    list.innerHTML = markets.map(m => `
+        <label class="market-cb-item">
+            <input type="checkbox" value="${escHtml(m)}"
+                   ${selectedMarkets.has(m) ? 'checked' : ''}
+                   onchange="onMarketCheckboxChange(this)">
+            <span>${escHtml(m)}</span>
+        </label>`).join('');
+}
+
+function filterMarketCheckboxes(query) {
+    const q = (query || '').trim().toLowerCase();
+    const filtered = q ? allMarkets.filter(m => m.toLowerCase().includes(q)) : allMarkets;
+    renderMarketCheckboxes(filtered);
+}
+
+function onMarketCheckboxChange(cb) {
+    if (cb.checked) selectedMarkets.add(cb.value);
+    else            selectedMarkets.delete(cb.value);
+    renderMarketTags();
+    // Clear error state
+    document.getElementById('market-checkbox-panel').classList.remove('error');
+}
+
+function removeMarket(market) {
+    selectedMarkets.delete(market);
+    const cb = document.querySelector(`#market-cb-list input[value="${CSS.escape(market)}"]`);
+    if (cb) cb.checked = false;
+    renderMarketTags();
+}
+
+function renderMarketTags() {
+    const container = document.getElementById('market-selected-tags');
+    if (selectedMarkets.size === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = [...selectedMarkets].map(m =>
+        `<span class="market-tag">${escHtml(m)}
+            <button type="button" onclick="removeMarket('${escHtml(m)}')" title="Remove">×</button>
+         </span>`
+    ).join('');
 }
 
 // ================================================================
-//  DELAY DESCRIPTION — from DB, auto-fills Code/Group/Category
+//  DELAY DESCRIPTION — from DB (dbo.DelayDetails)
 // ================================================================
 async function loadDowntimeCauses() {
     const sel = document.getElementById('d-desc');
     try {
         const res = await apiFetch('/api/production/delays');
-        if (res.data && res.data.length) {
-            // Deduplicate by description
-            const seen = new Set();
-            const unique = res.data.filter(d => {
-                const key = String(d.Description || d.description || '');
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            });
-            sel.innerHTML = '<option value="">No delay</option>' +
-                unique.map(d => `
-                    <option value="${escHtml(String(d.DelayKey || d.delay_key || ''))}"
-                        data-code="${escHtml(String(d.DelayCode     || d.delay_code     || '—'))}"
-                        data-group="${escHtml(String(d.DelayGroup    || d.delay_group    || '—'))}"
-                        data-category="${escHtml(String(d.DelayCategory || d.delay_category || '—'))}">
-                        ${escHtml(String(d.Description || d.description || '—'))}
+        if (res.success && res.data && res.data.length) {
+            sel.innerHTML = '<option value="">— No delay —</option>' +
+                res.data.map(d => `
+                    <option value="${escHtml(String(d.DelayKey || ''))}"
+                        data-code="${escHtml(String(d.DelayCode     || '—'))}"
+                        data-group="${escHtml(String(d.DelayGroup   || '—'))}"
+                        data-category="${escHtml(String(d.DelayCategory || '—'))}">
+                        ${escHtml(String(d.Description || '—'))}
                     </option>`).join('');
             return;
         }
-    } catch(e) {}
-    // Static fallback
-    sel.innerHTML = `
-        <option value="">No delay</option>
-        <option value="D101" data-code="D-101" data-group="Machine Maintenance" data-category="Technical Issue">Mechanical Sensor Failure</option>
-        <option value="D102" data-code="D-102" data-group="Supply Chain"        data-category="Material Issue">Material Shortage</option>
-        <option value="D103" data-code="D-103" data-group="Quality Control"     data-category="QC Hold">QC Inspection Hold</option>
-        <option value="D104" data-code="D-104" data-group="Operations"          data-category="Changeover">Product Changeover</option>
-        <option value="D105" data-code="D-105" data-group="Utilities"           data-category="Power Issue">Power Interruption</option>`;
+    } catch(e) {
+        console.warn('Delays load failed:', e.message);
+    }
+    sel.innerHTML = '<option value="">— No delay (DB unavailable) —</option>';
 }
 
-// Called when delay description changes — auto-fills left panel
 function onDelaySelect(sel) {
     const opt = sel.options[sel.selectedIndex];
     document.getElementById('auto-delay-code').textContent     = opt.dataset.code     || '—';
     document.getElementById('auto-delay-group').textContent    = opt.dataset.group    || '—';
     document.getElementById('auto-delay-category').textContent = opt.dataset.category || '—';
+}
+
+// ================================================================
+//  MACHINES — from DB (shared.Dim_Machine)
+// ================================================================
+async function loadMachines() {
+    const sel = document.getElementById('a-speedcat');
+    try {
+        const res = await apiFetch('/api/production/machines');
+        if (res.success && res.data && res.data.length) {
+            sel.innerHTML = '<option value="">Select Machine...</option>' +
+                res.data.map(m => `<option value="${escHtml(m.MachineCode)}">${escHtml(m.MachineCode)}</option>`).join('');
+            return;
+        }
+    } catch(e) {
+        console.warn('Machines load failed:', e.message);
+    }
+    sel.innerHTML = '<option value="">⚠ No machines available</option>';
 }
 
 // ================================================================
@@ -897,104 +1012,93 @@ async function loadDashboard() {
         document.getElementById('stat-total-records').textContent = (d.total_records ?? 0).toLocaleString();
         const prod = d.total_production;
         document.getElementById('stat-total-production').innerHTML = prod != null
-            ? parseFloat(prod).toLocaleString(undefined,{maximumFractionDigits:1}) + ' <span class="text-body-lg text-on-surface-variant">units</span>'
+            ? parseFloat(prod).toLocaleString(undefined, {maximumFractionDigits:1}) + ' <span class="text-body-lg text-on-surface-variant">units</span>'
             : '—';
         const yld = d.avg_efficiency != null ? parseFloat(d.avg_efficiency) : null;
         const yldPct = yld != null ? (yld > 1 ? yld : yld * 100).toFixed(1) : null;
-        document.getElementById('stat-oee-bar').style.width = yldPct ? Math.min(yldPct, 100) + '%' : '0%';
-        document.getElementById('stat-oee-label').textContent = yldPct ? `Avg Yield: ${yldPct}%` : 'No data yet';
-        document.getElementById('stat-efficiency').textContent = yldPct ? `Avg Yield: ${yldPct}%` : 'No data yet';
-    } catch(e) { document.getElementById('stat-efficiency').textContent = 'Backend not running'; }
+        document.getElementById('stat-oee-bar').style.width      = yldPct ? Math.min(yldPct, 100) + '%' : '0%';
+        document.getElementById('stat-oee-label').textContent    = yldPct ? `Avg Yield: ${yldPct}%` : 'No data yet';
+        document.getElementById('stat-efficiency').textContent   = yldPct ? `Avg Yield: ${yldPct}%` : 'No data yet';
+    } catch(e) {
+        document.getElementById('stat-efficiency').textContent = 'Backend not running';
+    }
 
     try {
-        const res2 = await apiFetch('/api/production?limit=5&sort=FullDate&order=DESC');
+        const res2 = await apiFetch('/api/production?limit=5');
         const tbody = document.getElementById('dashboard-table-body');
         if (res2.data && res2.data.length) {
             tbody.innerHTML = res2.data.map(r => {
-                const batchNo = r.BatchNumber || r.record_id || '—';
-                const machine = r.MachineCode || r.machine   || '—';
-                const shift   = r.ShiftCode   || r.shift_number || '—';
-                const dateVal = r.FullDate    || r.shift_date;
-                const dateStr = dateVal ? new Date(dateVal).toLocaleDateString() : '—';
+                const batchNo = r.BatchNumber || '—';
+                const product = r.MachineCode || '—';
+                const shift   = r.ShiftCode   || '—';
+                const dateStr = r.FullDate ? new Date(r.FullDate).toLocaleDateString() : '—';
                 const status  = r.BatchStatus || 'InProgress';
                 const badgeCls = status === 'Completed'
                     ? 'bg-primary-container text-on-primary-container'
-                    : (status === 'Rejected' || status === 'OnHold')
+                    : (status === 'OnHold' || status === 'Rejected')
                     ? 'bg-error-container text-on-error-container'
                     : 'bg-secondary-container text-on-secondary-container';
                 return `<tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
                     <td class="p-4 font-data-mono">${escHtml(batchNo)}</td>
-                    <td class="p-4">${escHtml(machine)}</td>
+                    <td class="p-4">${escHtml(product)}</td>
                     <td class="p-4"><span class="${badgeCls} px-3 py-1 rounded-full text-label-bold inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>${escHtml(shift)}</span></td>
                     <td class="p-4 text-on-surface-variant">${dateStr}</td>
                 </tr>`;
             }).join('');
+        } else {
+            tbody.innerHTML = '<tr><td class="p-4 text-on-surface-variant" colspan="4">No records found.</td></tr>';
         }
-    } catch(e) {}
-
-    try {
-        const today = new Date().toISOString().split('T')[0];
-        const monthAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0];
-        const res3 = await apiFetch(`/api/dashboard/stats?from=${monthAgo}&to=${today}`);
-        const rooms = res3.data?.production_by_room || [];
-        if (rooms.length) {
-            const maxTotal = Math.max(...rooms.map(r => parseFloat(r.total) || 0));
-            const rc = document.getElementById('room-chart-container');
-            if (rc) rc.innerHTML = rooms.map(r => {
-                const total = parseFloat(r.total) || 0;
-                const pct   = maxTotal ? Math.round((total / maxTotal) * 100) : 0;
-                const name  = r.RoomName || r.RoomCode || r.room || '?';
-                return `<div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">${escHtml(name)}</span><span class="text-primary">${total.toLocaleString(undefined,{maximumFractionDigits:1})} kg</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:${pct}%"></div></div></div>`;
-            }).join('');
-        }
-        const delays = res3.data?.downtime_by_cause || [];
-        if (delays.length) {
-            const maxOcc = Math.max(...delays.map(d => d.occurrences || 0));
-            const dc = document.getElementById('delay-chart-container');
-            if (dc) dc.innerHTML = delays.slice(0,5).map(d => {
-                const pct = maxOcc ? Math.round(((d.occurrences||0) / maxOcc) * 100) : 0;
-                const label = d.DelayCategory || d.DelayCode || d.cause_name || 'Unknown';
-                return `<div class="space-y-1"><div class="flex justify-between text-label-bold mb-1"><span class="text-on-surface-variant">${escHtml(label)}</span><span class="text-primary">${d.occurrences} times</span></div><div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full" style="width:${pct}%"></div></div></div>`;
-            }).join('');
-        }
-    } catch(e) {}
+    } catch(e) {
+        document.getElementById('dashboard-table-body').innerHTML =
+            '<tr><td class="p-4 text-on-surface-variant" colspan="4">Could not load records.</td></tr>';
+    }
 }
 
 // ================================================================
-//  SESSION FORM
+//  SESSION FORM SUBMIT
 // ================================================================
 window.batchData = {};
 
 function handleSessionSubmit(e) {
     e.preventDefault();
-    // Validate product was actually selected from dropdown (not just typed)
-    const productKey = document.getElementById('f-product-key').value;
-    const productInput = document.getElementById('f-product');
-    if (!productInput.value.trim()) {
-        productInput.style.borderColor = '#ba1a1a';
+
+    // Validate: product must be selected from dropdown (not just typed)
+    const productInput     = document.getElementById('f-product');
+    const productConfirmed = document.getElementById('f-product-confirmed');
+    if (!productConfirmed.value.trim()) {
+        productInput.classList.add('field-error');
         productInput.focus();
-        setTimeout(() => productInput.style.borderColor = '', 2500);
+        setTimeout(() => productInput.classList.remove('field-error'), 3000);
         return;
     }
-    const btn = document.getElementById('session-submit-btn');
-    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> Saving...';
+
+    // Validate: at least one market selected
+    if (selectedMarkets.size === 0) {
+        const panel = document.getElementById('market-checkbox-panel');
+        panel.classList.add('error');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => panel.classList.remove('error'), 3000);
+        return;
+    }
+
+    const btn  = document.getElementById('session-submit-btn');
+    btn.innerHTML = '<span class="spinner" style="border-top-color:#fff;margin-right:6px"></span> Saving...';
     btn.disabled  = true;
 
     const employees = ['f-emp1','f-emp2','f-emp3','f-emp4','f-emp5']
         .map(id => document.getElementById(id).value.trim()).filter(Boolean);
 
     window.batchData.session = {
-        shift_number:  document.getElementById('f-shift').value,
-        day_of_week:   document.getElementById('f-day').value,
-        shift_date:    document.getElementById('f-date').value,
-        product_name:  document.getElementById('f-product').value,
-        product_key:   productKey || document.getElementById('f-product').value,
-        product_code:  document.getElementById('f-product-code').value,
-        room:          document.getElementById('f-room').value,
-        market_type:   document.getElementById('f-market').value,
-        batch_number:  document.getElementById('f-batch').value || null,
-        batch_status:  document.getElementById('f-batch-status').value || 'InProgress',
-        operator_name:      employees.join(', ') || (currentUser?.full_name || currentUser?.username || 'Unknown'),
+        shift_number:       document.getElementById('f-shift').value,
+        day_of_week:        document.getElementById('f-day').value,
+        shift_date:         document.getElementById('f-date').value,
+        product_name:       document.getElementById('f-product').value,
+        product_code:       document.getElementById('f-product-code').value,
+        room:               document.getElementById('f-room').value,
+        market_type:        [...selectedMarkets].join(','),
+        batch_number:       document.getElementById('f-batch').value,
+        batch_status:       document.getElementById('f-batch-status').value || 'InProgress',
+        operator_name:      employees.join(', ') || 'Unknown',
         overtime_minutes:   parseInt(document.getElementById('f-overtime').value)   || 0,
         nightshift_minutes: parseInt(document.getElementById('f-nightshift').value) || 0,
         overlap_minutes:    parseInt(document.getElementById('f-overlap').value)    || 0,
@@ -1008,7 +1112,7 @@ function handleSessionSubmit(e) {
 }
 
 // ================================================================
-//  ACTIVITY LOG
+//  ACTIVITY LOG CALCULATIONS
 // ================================================================
 function calcDuration() {
     const s = document.getElementById('a-start').value;
@@ -1021,17 +1125,15 @@ function calcDuration() {
     document.getElementById('a-duration').textContent =
         `${Math.floor(mins/60).toString().padStart(2,'0')}:${(mins%60).toString().padStart(2,'0')}:00`;
     window.batchData._durationMinutes = mins;
-      updateActivityTimeExceptions();
+    updateActivityTimeExceptions();
 }
 
 function updateActivityTimeExceptions() {
-    const s = window.batchData.session || {};
-    const ot = s.overtime_minutes   || 0;
-    const ns = s.nightshift_minutes || 0;
-    const ov = s.overlap_minutes    || 0;
+    const s   = window.batchData.session || {};
+    const ot  = s.overtime_minutes   || 0;
+    const ns  = s.nightshift_minutes || 0;
+    const ov  = s.overlap_minutes    || 0;
     const fmt = n => String(Math.floor(n/60)).padStart(2,'0') + ':' + String(n%60).padStart(2,'0') + ':00';
-
-    
     const elOv = document.getElementById('act-overlap');
     const elOt = document.getElementById('act-overtime');
     const elNs = document.getElementById('act-nightshift');
@@ -1040,38 +1142,38 @@ function updateActivityTimeExceptions() {
     if (elNs) elNs.textContent = fmt(ns);
 }
 
-
 function calcYield() {
     const planned  = parseInt(document.getElementById('a-planned').value)  || 0;
     const actual   = parseInt(document.getElementById('a-actual').value)   || 0;
     const rejected = parseInt(document.getElementById('a-rejected').value) || 0;
     const waste    = planned - actual;
     const yieldPct = planned > 0 ? ((actual / planned) * 100).toFixed(1) : 0;
-    document.getElementById('calc-rejected').textContent   = rejected.toLocaleString();
-    document.getElementById('calc-waste').textContent      = waste > 0 ? waste.toLocaleString() : '0';
-    document.getElementById('calc-yield').textContent      = yieldPct + '%';
-    document.getElementById('calc-yield-bar').style.width  = yieldPct + '%';
+    document.getElementById('calc-rejected').textContent  = rejected.toLocaleString();
+    document.getElementById('calc-waste').textContent     = waste > 0 ? waste.toLocaleString() : '0';
+    document.getElementById('calc-yield').textContent     = yieldPct + '%';
+    document.getElementById('calc-yield-bar').style.width = yieldPct + '%';
 }
 
 // ================================================================
-//  SUMMARY
+//  SUMMARY — populate from batchData
 // ================================================================
 function populateSummary() {
     const s = window.batchData.session  || {};
-    const a = window.batchData.activity || {};
 
-    setText('s-product',      s.product_name || '—');
-    setText('s-product-code', s.product_code || '—');
+    setText('s-batch',        s.batch_number  || '—');
+    setText('s-product',      s.product_name  || '—');
+    setText('s-product-code', s.product_code  || '—');
     setText('s-shift-day',    [s.shift_number, s.day_of_week].filter(Boolean).join(' / ') || '—');
-    setText('s-date',         s.shift_date   || '—');
-    setText('s-room',         s.room         || '—');
-    setText('s-market',       s.market_type  || '—');
+    setText('s-date',         s.shift_date    || '—');
+    setText('s-room',         s.room          || '—');
+    setText('s-market',       s.market_type   || '—');
 
     document.getElementById('s-personnel').innerHTML =
         (s.operator_name || '—').split(',').map(n =>
             `<span class="bg-surface-variant/50 px-3 py-1 rounded text-body-md font-body-md border border-outline-variant/30">${escHtml(n.trim())}</span>`
         ).join('');
 
+    const a = window.batchData.activity || {};
     const tbody = document.getElementById('s-activity-rows');
     if (a.process_type || a.activity_type) {
         tbody.innerHTML = `<tr>
@@ -1082,14 +1184,14 @@ function populateSummary() {
         </tr>`;
     }
 
-    setText('s-planned',  (a.planned_quantity  || 0).toLocaleString());
-    setText('s-actual',   (a.actual_quantity   || 0).toLocaleString());
-    setText('s-rejected', (a.rejected_quantity || 0).toLocaleString());
-    setText('s-overtime',   String(window.batchData.session?.overtime_minutes   || 0).padStart(2,'0'));
-    setText('s-nightshift', String(window.batchData.session?.nightshift_minutes || 0).padStart(2,'0'));
-    setText('s-overlap',    String(window.batchData.session?.overlap_minutes    || 0).padStart(2,'0'));
+    setText('s-planned',    (a.planned_quantity  || 0).toLocaleString());
+    setText('s-actual',     (a.actual_quantity   || 0).toLocaleString());
+    setText('s-rejected',   (a.rejected_quantity || 0).toLocaleString());
+    setText('s-overtime',   String(s.overtime_minutes   || 0).padStart(2,'0'));
+    setText('s-nightshift', String(s.nightshift_minutes || 0).padStart(2,'0'));
+    setText('s-overlap',    String(s.overlap_minutes    || 0).padStart(2,'0'));
 
-    // Delays summary
+    // Delay summary
     const delayDescSel = document.getElementById('d-desc');
     const selectedOpt  = delayDescSel.options[delayDescSel.selectedIndex];
     const delayDescVal = selectedOpt && selectedOpt.value ? selectedOpt.text : null;
@@ -1103,7 +1205,7 @@ function populateSummary() {
         ? `<div class="p-6 bg-error-container/10 border border-error-container/30 rounded-xl">
                 <div class="flex items-start justify-between mb-4">
                     <div>
-                        <span class="bg-error text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-tighter">Code: ${escHtml(delayCode)}</span>
+                        <span class="bg-error text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">Code: ${escHtml(delayCode)}</span>
                         <h4 class="font-body-lg text-body-lg font-bold mt-2">${escHtml(delayDescVal)}</h4>
                     </div>
                     <span class="text-label-sm font-label-bold text-on-surface-variant">${downtime ? 'Duration: ' + downtime + 'm' : ''}</span>
@@ -1123,23 +1225,21 @@ function setText(id, val) {
 }
 
 // ================================================================
-//  SUBMIT BATCH
+//  FINAL SUBMIT
 // ================================================================
 document.getElementById('submitBatchBtn').addEventListener('click', async function () {
     const btn  = this;
     const orig = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...`;
+    btn.innerHTML = `<span class="spinner" style="border-top-color:#fff;margin-right:6px"></span> Processing...`;
 
-    const startTime = document.getElementById('a-start').value;
-    const endTime   = document.getElementById('a-end').value;
     window.batchData.activity = {
-        process_type:      document.getElementById('a-process').value  || null,
-        activity_type:     document.getElementById('a-activity').value || null,
-        machine:           document.getElementById('a-speedcat').value || 'General',
+        process_type:      document.getElementById('a-process').value    || null,
+        activity_type:     document.getElementById('a-activity').value   || null,
+        machine:           document.getElementById('a-speedcat').value   || 'General',
         feeder_active:     document.getElementById('a-feeder-auto').checked,
-        start_time:        startTime || null,
-        end_time:          endTime   || null,
+        start_time:        document.getElementById('a-start').value      || null,
+        end_time:          document.getElementById('a-end').value        || null,
         planned_quantity:  parseFloat(document.getElementById('a-planned').value)  || 1,
         actual_quantity:   parseFloat(document.getElementById('a-actual').value)   || 0,
         rejected_quantity: parseFloat(document.getElementById('a-rejected').value) || 0,
@@ -1149,13 +1249,15 @@ document.getElementById('submitBatchBtn').addEventListener('click', async functi
     const delaySelect = document.getElementById('d-desc');
     const delayOpt    = delaySelect.options[delaySelect.selectedIndex];
     window.batchData.delays = {
-       downtime_cause_name: delaySelect.value || null,
-       delay_code:          delayOpt?.dataset.code     || 'N/A',
-       delay_category:      delayOpt?.dataset.category || null,
-       delay_group:         delayOpt?.dataset.group     || null,
-       downtime_minutes:    parseInt(document.getElementById('d-downtime').value) || 0,
-       downtime_notes:      [document.getElementById('d-cause').value, document.getElementById('d-notes').value].filter(Boolean).join('\n') || null,
-};
+        downtime_cause_name: delaySelect.value || null,
+        delay_code:          delayOpt?.dataset.code     || 'N/A',
+        delay_category:      delayOpt?.dataset.category || null,
+        delay_group:         delayOpt?.dataset.group    || null,
+        downtime_minutes:    parseInt(document.getElementById('d-downtime').value) || 0,
+        downtime_notes:      [document.getElementById('d-cause').value, document.getElementById('d-notes').value]
+                             .filter(Boolean).join('\n') || null,
+    };
+
     const payload = {
         ...window.batchData.session,
         ...window.batchData.activity,
@@ -1172,11 +1274,14 @@ document.getElementById('submitBatchBtn').addEventListener('click', async functi
             btn.disabled = false;
             btn.innerHTML = orig;
             btn.classList.replace('bg-green-600','bg-primary');
+            // Reset for next entry
+            selectedMarkets.clear();
+            renderMarketTags();
             window.batchData = {};
         }, 1000);
     } catch (err) {
         alert('Submission failed: ' + (err.message || 'Unknown error') + '\n\nMake sure the backend server is running on port 5000.');
-        btn.disabled = false;
+        btn.disabled  = false;
         btn.innerHTML = orig;
     }
 });
@@ -1184,37 +1289,17 @@ document.getElementById('submitBatchBtn').addEventListener('click', async functi
 // ================================================================
 //  INIT
 // ================================================================
-async function loadMachines() {
-    const sel = document.getElementById('a-speedcat');
-    try {
-        const res = await apiFetch('/api/production/machines');
-        if (res.data && res.data.length) {
-            sel.innerHTML = '<option value="">Select Machine...</option>' +
-                res.data.map(m => `<option value="${escHtml(m.MachineCode)}">${escHtml(m.MachineCode)}</option>`).join('');
-            return;
-        }
-    } catch(e) {}
-}
-async function initApp() {
-    showPage('dashboard');
-    loadDashboard();
-    await Promise.all([ loadProducts(), loadMarkets(), loadDowntimeCauses(), loadMachines() ]);
-
-    document.querySelectorAll('#page-activity input, #page-activity select, #page-activity textarea').forEach(el => {
-        el.addEventListener('focus', () => {
-            const p = el.closest('.flex-col, .col-span-12');
-            if (p) { p.style.transform = 'scale(1.01)'; p.style.transition = 'transform 0.2s ease'; }
-        });
-        el.addEventListener('blur', () => {
-            const p = el.closest('.flex-col, .col-span-12');
-            if (p) p.style.transform = 'scale(1)';
-        });
-    });
-}
-
 window.addEventListener('DOMContentLoaded', async () => {
-    if (!authToken) await silentAuth();
-    initApp();
+    showPage('dashboard');
+    // Load all DB data in parallel
+    await Promise.all([
+        loadDashboard(),
+        loadProducts(),
+        loadMarkets(),
+        loadDowntimeCauses(),
+        loadMachines(),
+    ]);
+    renderMarketTags();
 });
 </script>
 </body>
