@@ -753,7 +753,10 @@
 //  CONFIG
 // ================================================================
 const API_BASE = 'http://localhost:5000';
-
+// ── Market blacklist ──
+const MARKET_BLACKLIST = new Set([
+    'DRM', 'GPDDRMS', 'KUR.S', 'S.KUR-KUR', 'LBM', 'S.OR', 'NCDEC'
+]);
 async function apiFetch(path, options = {}) {
     const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
     const res = await fetch(API_BASE + path, { credentials: 'include', ...options, headers });
@@ -892,8 +895,12 @@ async function loadMarkets() {
     try {
         const res = await apiFetch('/api/production/markets');
         if (res.success && res.data && res.data.length) {
-            allMarkets = res.data.map(m => String(m.Market || '').trim()).filter(Boolean);
-            renderMarketCheckboxes(allMarkets);
+            allMarkets = [...new Set(
+                res.data
+                    .map(m => String(m.Market || '').trim())
+                    .filter(m => m && !MARKET_BLACKLIST.has(m))
+            )];
+            renderMarketCheckboxes(allMarkets);  // ← هاد السطر موجود؟
             return;
         }
     } catch(e) {
@@ -901,7 +908,7 @@ async function loadMarkets() {
     }
     allMarkets = [];
     document.getElementById('market-cb-list').innerHTML =
-        '<p class="text-label-sm text-error px-2 py-2">⚠ Could not load markets — check DB connection</p>';
+        '<p class="text-label-sm text-error px-2 py-2">⚠ Could not load markets</p>';
 }
 
 function renderMarketCheckboxes(markets) {
@@ -1095,7 +1102,7 @@ function handleSessionSubmit(e) {
         product_name:       document.getElementById('f-product').value,
         product_code:       document.getElementById('f-product-code').value,
         room:               document.getElementById('f-room').value,
-        market_type:        [...selectedMarkets].join(','),
+        market_type: [...selectedMarkets].join('/'),
         batch_number:       document.getElementById('f-batch').value,
         batch_status:       document.getElementById('f-batch-status').value || 'InProgress',
         operator_name:      employees.join(', ') || 'Unknown',
