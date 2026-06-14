@@ -25,6 +25,7 @@ JOSWE's Blistering Production Department manages tablet and capsule packaging ac
 **BPAP** solves this by:
 - Replacing error-prone Excel entry with a controlled web-based interface
 - Running a structured ETL pipeline into a centralized SQL Server database
+- Automatically syncing submitted data to `dbo.Daily_Time_Sheet_Master` for Power BI reporting
 - Delivering real-time KPI dashboards for management decision-making
 
 ---
@@ -39,8 +40,10 @@ JOSWE's Blistering Production Department manages tablet and capsule packaging ac
 [ETL Pipeline (SQL Stored Procedures)]
         ↓
 [Microsoft SQL Server — NEW_Production]
-        ↓
-[Power BI / Excel KPI Dashboard]
+        ↓        ↓
+[blistering.Fact_Production]   [dbo.Daily_Time_Sheet_Master]
+                                        ↓
+                              [Power BI / Excel KPI Dashboard]
 ```
 
 ---
@@ -49,6 +52,7 @@ JOSWE's Blistering Production Department manages tablet and capsule packaging ac
 
 - **Controlled Data Entry** — Web UI with strict validation (dropdowns, required fields, type checks)
 - **ETL Pipeline** — Automated data cleaning, transformation, and loading via SQL stored procedures
+- **Power BI Sync** — Every submission automatically updates `Daily_Time_Sheet_Master` for live dashboard refresh
 - **Audit Trail** — Every submission is timestamped and logged (ALCOA+ compliant)
 - **KPI Calculations** — OEE, Yield %, Defect Rate, Downtime % — auto-calculated
 - **Delay Tracking** — Linked to `Dim_DelayType` with code, group, and category
@@ -67,6 +71,8 @@ JOSWE/
 │   ├── middleware/       # Auth, roles, validation, error handling
 │   ├── routes/          # Express routes
 │   ├── services/        # Audit service
+│   ├── sql/             # SQL stored procedures
+│   │   └── usp_Load_Blistering.sql
 │   ├── utils/           # Logger, response helpers
 │   └── server.js        # Entry point
 ├── JOSWE_Production_Line-UI-Front.html   # Main frontend
@@ -158,15 +164,18 @@ Open `JOSWE_Production_Line-UI-Front.html` in your browser (use Live Server or a
 ## 🗄️ Database — ETL Flow
 
 ```
-etl.Stg_BlisteringTimeSheet   ← Raw staging (from UI)
+etl.Stg_BlisteringTimeSheet      ← Raw staging (from UI submission)
         ↓
-etl.usp_Validate_Blistering   ← Validation stored procedure
+etl.usp_Validate_Blistering      ← Validation: flags errors, marks clean rows
         ↓
-etl.usp_Load_Blistering       ← Load to fact table
+etl.usp_Load_Blistering          ← Loads clean data to:
+        ↓                  ↓
+blistering.Fact_Production    dbo.Daily_Time_Sheet_Master
+(Star schema fact table)      (Power BI reporting table — live sync)
         ↓
-blistering.Fact_Production    ← Clean fact data
+shared.Bridge_ProductionEmployee  ← Employee assignments per shift
         ↓
-shared.Production_Summary     ← Reporting view
+shared.Production_Summary         ← Reporting view for dashboards
 ```
 
 ---
